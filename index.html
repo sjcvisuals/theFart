@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Fartle: the daily newspaper game from The Daily Fart. One object. Five guesses. An unreasonable amount of gas."
+    />
+    <title>The Daily Fart — Today's Fartle</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#todays-fartle">Skip to today's Fartle</a>
+
+    <div class="desk">
+      <div class="newspaper">
+        <header class="masthead">
+          <div class="masthead-top">
+            <p class="edition-flag">Late city edition</p>
+            <button
+              type="button"
+              class="mute-button"
+              id="mute-button"
+              aria-pressed="false"
+              aria-label="Mute sound"
+              title="Mute sound"
+            >
+              <span aria-hidden="true" id="mute-icon">🔊</span>
+              <span class="mute-label" id="mute-label">Sound on</span>
+            </button>
+          </div>
+
+          <p class="masthead-flourish" aria-hidden="true">★ Est. 2026 ★</p>
+          <h1 class="masthead-title">The Daily Fart</h1>
+          <p class="masthead-tagline">All the news that's fit to toot.</p>
+
+          <div class="masthead-meta">
+            <p class="meta-issue" id="issue-line">Issue —</p>
+            <p class="meta-date" id="date-line">
+              <time datetime="">Today</time>
+            </p>
+            <p class="meta-price">50p</p>
+          </div>
+
+          <p class="weather-line" id="weather-line">Forecast to follow.</p>
+        </header>
+
+        <nav class="paper-nav" aria-label="Edition sections">
+          <ul>
+            <li><a href="#news-left">World</a></li>
+            <li><a href="#news-left">UK</a></li>
+            <li><a href="#news-right">Business</a></li>
+            <li><a href="#news-right">Sport</a></li>
+            <li><a href="#news-right">Technology</a></li>
+            <li><a href="#todays-fartle">Farts</a></li>
+          </ul>
+        </nav>
+
+        <noscript>
+          <p class="noscript">
+            This edition requires JavaScript. Even our farts are modern.
+          </p>
+        </noscript>
+
+        <main>
+          <div class="paper-grid">
+            <aside class="col col-left" id="news-left" aria-label="Column one"></aside>
+
+            <section class="col col-center" id="todays-fartle" aria-labelledby="game-headline">
+              <article class="feature">
+                <p class="breaking-badge">Breaking wind</p>
+                <p class="feature-kicker">The front-page puzzle</p>
+                <h2 class="feature-headline" id="game-headline">Today's Fartle</h2>
+                <p class="feature-standfirst">
+                  One object. Five guesses. An unreasonable amount of gas.
+                </p>
+
+                <figure class="object-portrait">
+                  <div class="object-visual" id="object-visual" aria-hidden="true">?</div>
+                  <figcaption>
+                    <span id="object-caption">Today's object</span>
+                  </figcaption>
+                </figure>
+
+                <p class="object-name" id="object-name">Loading the presses…</p>
+                <p class="object-description" id="object-description"></p>
+                <p class="object-question">How many farts would it take to fill this?</p>
+                <p class="attempt-line" id="attempt-line">5 attempts remaining.</p>
+
+                <form class="guess-form" id="guess-form" novalidate>
+                  <div class="field">
+                    <label for="guess-input">Your estimate</label>
+                    <input
+                      id="guess-input"
+                      name="guess"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="off"
+                      autocorrect="off"
+                      spellcheck="false"
+                      enterkeyhint="done"
+                      aria-describedby="guess-hint guess-error"
+                      required
+                    />
+                    <p class="field-hint" id="guess-hint">
+                      Whole numbers only. No decimals, no noughts of despair.
+                    </p>
+                  </div>
+                  <p class="field-error" id="guess-error" hidden></p>
+                  <button type="submit" class="guess-button" id="guess-button">Guess</button>
+                </form>
+
+                <div
+                  class="live-region"
+                  id="live-region"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                ></div>
+
+                <table class="guess-table">
+                  <caption>Previous guesses</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Guess</th>
+                      <th scope="col">Result</th>
+                    </tr>
+                  </thead>
+                  <tbody id="guess-body">
+                    <tr class="empty-row">
+                      <td colspan="2">No guesses yet. The nation waits.</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div class="outcome" id="outcome" hidden></div>
+              </article>
+            </section>
+
+            <aside class="col col-right" id="news-right" aria-label="Column three"></aside>
+          </div>
+
+          <section class="bottom-band">
+            <div class="bottom-news" id="news-bottom" aria-label="Further stories"></div>
+
+            <aside class="legends" id="legends" aria-labelledby="legends-heading">
+              <p class="section-label">The roll of honour</p>
+              <h2 id="legends-heading">Today's Fart Legends</h2>
+              <ol class="legends-list" id="legends-list"></ol>
+              <p class="legends-note">Scores shown on this device.</p>
+            </aside>
+          </section>
+
+          <section class="classifieds" aria-labelledby="classifieds-heading">
+            <h2 id="classifieds-heading">Classifieds</h2>
+            <div class="classifieds-grid" id="classifieds"></div>
+          </section>
+        </main>
+
+        <footer class="paper-footer">
+          <p>Independent gastrointestinal journalism since 2026.</p>
+          <p class="footer-small">
+            Fartle is a comedy approximation, not a laboratory. One average fart is taken as
+            100&nbsp;mL. Printed on imaginary newsprint. No actual objects were filled in the making
+            of this edition.
+          </p>
+        </footer>
+      </div>
+    </div>
+
+    <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+    <script src="js/objects.js"></script>
+    <script src="js/news.js"></script>
+    <script src="js/game.js"></script>
+  </body>
+</html>
