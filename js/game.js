@@ -9,7 +9,8 @@
   var STORAGE = {
     game: "fartle.v1.game",
     scores: "fartle.v1.scores",
-    muted: "fartle.v1.muted"
+    muted: "fartle.v1.muted",
+    photos: "fartle.v1.photos"
   };
 
   var els = {};
@@ -86,7 +87,10 @@
     els.issueLine = document.getElementById("issue-line");
     els.dateLine = document.getElementById("date-line");
     els.weatherLine = document.getElementById("weather-line");
+    els.weatherIcon = document.getElementById("weather-icon");
+    els.weatherTemp = document.getElementById("weather-temp");
     els.objectVisual = document.getElementById("object-visual");
+    els.objectFallback = document.getElementById("object-fallback");
     els.objectCaption = document.getElementById("object-caption");
     els.objectName = document.getElementById("object-name");
     els.objectDescription = document.getElementById("object-description");
@@ -196,22 +200,231 @@
     time.dateTime = dateString;
     time.textContent = formatLongDate(dateString);
     els.dateLine.appendChild(time);
-
-    var forecasts = window.FARTLE_WEATHER || [];
-    if (forecasts.length) {
-      var idx =
-        ((daysSinceEpoch(dateString) % forecasts.length) + forecasts.length) %
-        forecasts.length;
-      els.weatherLine.textContent = "Weather: " + forecasts[idx];
-    }
+    loadWeather();
   }
 
   function renderPuzzle() {
     var object = puzzle.object;
-    els.objectVisual.textContent = object.emoji || "💨";
-    els.objectCaption.textContent = object.caption || "Artist's impression.";
+    if (els.objectFallback) {
+      els.objectFallback.hidden = false;
+      els.objectFallback.textContent = (object.name || "?").charAt(0);
+    }
+    var existing = els.objectVisual.querySelector("img");
+    if (existing) {
+      existing.remove();
+    }
+    els.objectCaption.textContent = object.caption || "Today's object.";
     els.objectName.textContent = object.name;
     els.objectDescription.textContent = object.description;
+    loadObjectPhoto(object);
+  }
+
+  var PHOTO_SEARCH = {
+    "pint-glass": "pint glass beer",
+    "espresso-cup": "espresso cup",
+    "thermos": "thermos flask",
+    "kettle": "electric kettle",
+    "teapot": "ceramic teapot",
+    "wellington-boot": "Wellington boot",
+    "football": "association football ball",
+    "briefcase": "leather briefcase",
+    "microwave": "microwave oven",
+    "washing-machine": "front loading washing machine",
+    "dustbin": "galvanised dustbin",
+    "space-hopper": "space hopper",
+    "fish-tank": "aquarium fish tank",
+    "pillar-box": "British pillar box",
+    "bathtub": "clawfoot bathtub",
+    "wheelie-bin": "wheelie bin",
+    "canoe": "canoe boat",
+    "fridge-freezer": "refrigerator freezer",
+    "paddling-pool": "inflatable paddling pool",
+    "mini-cooper": "Classic Mini Cooper car",
+    "phone-box": "red telephone box",
+    "portaloo": "portable toilet",
+    "lift": "elevator interior",
+    "skip": "builders skip",
+    "garden-shed": "garden shed",
+    "igloo": "igloo",
+    "greenhouse": "greenhouse garden",
+    "caravan": "travel caravan",
+    "london-eye-capsule": "London Eye capsule",
+    "conservatory": "house conservatory",
+    "shipping-container": "shipping container",
+    "tube-carriage": "London Underground train carriage",
+    "double-decker": "double decker bus London",
+    "hot-air-balloon": "hot air balloon",
+    "olympic-pool": "Olympic swimming pool"
+  };
+
+  async function loadObjectPhoto(object) {
+    var query = PHOTO_SEARCH[object.id] || object.name;
+    var cache = readJson(STORAGE.photos, {});
+    var cachedUrl = cache[object.id];
+    if (cachedUrl) {
+      if (showObjectPhoto(cachedUrl, object)) {
+        return;
+      }
+    }
+
+    try {
+      var api =
+        "https://en.wikipedia.org/w/api.php?origin=*&action=query&format=json" +
+        "&prop=pageimages&piprop=thumbnail&pithumbsize=800&generator=search&gsrlimit=1&gsrsearch=" +
+        encodeURIComponent(query);
+      var response = await fetch(api);
+      if (!response.ok) {
+        return;
+      }
+      var data = await response.json();
+      var pages = data && data.query && data.query.pages;
+      if (!pages) {
+        return;
+      }
+      var page = pages[Object.keys(pages)[0]];
+      var url = page && page.thumbnail && page.thumbnail.source;
+      if (!url) {
+        return;
+      }
+      cache[object.id] = url;
+      writeJson(STORAGE.photos, cache);
+      showObjectPhoto(url, object);
+    } catch (err) {
+      // Keep the letterpress fallback.
+    }
+  }
+
+  function showObjectPhoto(url, object) {
+    if (!els.objectVisual) {
+      return false;
+    }
+    var img = document.createElement("img");
+    img.src = url;
+    img.alt = object.name;
+    img.referrerPolicy = "no-referrer-when-downgrade";
+    img.onload = function () {
+      if (els.objectFallback) {
+        els.objectFallback.hidden = true;
+      }
+      els.objectCaption.textContent =
+        (object.caption || object.name) + " Photograph: Wikipedia.";
+    };
+    img.onerror = function () {
+      img.remove();
+      if (els.objectFallback) {
+        els.objectFallback.hidden = false;
+      }
+    };
+    var previous = els.objectVisual.querySelector("img");
+    if (previous) {
+      previous.remove();
+    }
+    els.objectVisual.appendChild(img);
+    return true;
+  }
+
+  async function loadWeather() {
+    try {
+      var url =
+        "https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278" +
+        "&current=temperature_2m,weather_code&timezone=Europe%2FLondon";
+      var response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("forecast late");
+      }
+      var data = await response.json();
+      var current = data.current || {};
+      paintWeather(current.weather_code, current.temperature_2m);
+    } catch (err) {
+      paintWeather(3, null);
+    }
+  }
+
+  function paintWeather(code, temperature) {
+    var kind = weatherKind(code);
+    if (els.weatherIcon) {
+      els.weatherIcon.innerHTML = weatherIconSvg(kind);
+    }
+    if (els.weatherTemp) {
+      els.weatherTemp.textContent =
+        temperature == null || !Number.isFinite(Number(temperature))
+          ? "—"
+          : Math.round(Number(temperature)) + "°";
+    }
+    if (els.weatherLine) {
+      var label = weatherLabel(kind);
+      var degrees =
+        temperature == null || !Number.isFinite(Number(temperature))
+          ? ""
+          : ", " + Math.round(Number(temperature)) + " degrees";
+      els.weatherLine.setAttribute("aria-label", "London weather: " + label + degrees);
+      els.weatherLine.title = "London: " + label;
+    }
+  }
+
+  function weatherKind(code) {
+    var n = Number(code);
+    if (n === 0 || n === 1) {
+      return "sun";
+    }
+    if (n === 2) {
+      return "partly";
+    }
+    if (n === 45 || n === 48) {
+      return "fog";
+    }
+    if ((n >= 51 && n <= 67) || (n >= 80 && n <= 82)) {
+      return "rain";
+    }
+    if ((n >= 71 && n <= 77) || n === 85 || n === 86) {
+      return "snow";
+    }
+    if (n >= 95) {
+      return "storm";
+    }
+    return "cloud";
+  }
+
+  function weatherLabel(kind) {
+    if (kind === "sun") {
+      return "clear";
+    }
+    if (kind === "partly") {
+      return "partly cloudy";
+    }
+    if (kind === "rain") {
+      return "rain";
+    }
+    if (kind === "snow") {
+      return "snow";
+    }
+    if (kind === "storm") {
+      return "storms";
+    }
+    if (kind === "fog") {
+      return "fog";
+    }
+    return "cloudy";
+  }
+
+  function weatherIconSvg(kind) {
+    var icons = {
+      sun:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v2.4M12 19.6V22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2 12h2.4M19.6 12H22M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+      partly:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.2V6M3.2 9H5M4.4 4.4l1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8.5 16.5h9.2a3.2 3.2 0 0 0 .2-6.4 4.2 4.2 0 0 0-8-1.3 3.3 3.3 0 0 0-1.4 7.7z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+      cloud:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10.2A3.6 3.6 0 0 0 17.5 11a4.8 4.8 0 0 0-9.2-1.4A3.7 3.7 0 0 0 7 18z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+      rain:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13.5h10.2A3.4 3.4 0 0 0 17.4 7a4.6 4.6 0 0 0-8.8-1.3A3.5 3.5 0 0 0 7 13.5z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 16.5v3M12 17v3.2M15.5 16.5v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+      snow:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 13.5h10.2A3.4 3.4 0 0 0 17.4 7a4.6 4.6 0 0 0-8.8-1.3A3.5 3.5 0 0 0 7 13.5z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.6 17.2h.1M12 18h.1M15.5 17.2h.1M10.2 20h.1M13.8 20h.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+      storm:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12.8h10.2A3.4 3.4 0 0 0 17.4 6.4a4.6 4.6 0 0 0-8.8-1.3A3.5 3.5 0 0 0 7 12.8z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11.2 13.2 9.4 18h3.2l-1.6 4.2 4.4-5.6h-3z" fill="currentColor"/></svg>',
+      fog:
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h14M4 12.5h16M6 16h12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
+    };
+    return icons[kind] || icons.cloud;
   }
 
   function renderAttempts() {
