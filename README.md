@@ -51,6 +51,9 @@ There is **one object per calendar day**.
 - Selection is deterministic: the same date always yields the same object.
 - Refreshing the page does **not** pick a new object.
 - Puzzle numbering counts days since 1 January 2026.
+- Object photographs are fetched from Wikipedia/Wikimedia Commons and shown in black-and-white newsprint.
+
+The masthead weather chip is London, via Open-Meteo (no API key): icon plus temperature in °C.
 
 Completed-game state is stored in `localStorage`. Refreshing does not let you restart today's puzzle. When the calendar date changes, a new edition begins automatically.
 
@@ -69,7 +72,7 @@ There is no server. Scores are saved on **this device only**.
 | `fartle.v1.game` | Today's guesses, win/loss, whether a name was printed |
 | `fartle.v1.scores` | Fart Legends entries (name, guesses, date, object, answer) |
 | `fartle.v1.muted` | Mute preference for the win sound |
-| `fartle.v1.onion` | Today's Onion headlines (cached for the calendar date) |
+| `fartle.v1.photos` | Cached Wikipedia thumbnail URL for today's object |
 
 The scoreboard lists today's best scores on this device, sorted by fewest guesses. It is **not** a global multiplayer leaderboard.
 

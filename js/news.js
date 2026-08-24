@@ -60,16 +60,6 @@
   }
 };
 
-window.FARTLE_WEATHER = [
-  "Scattered toots, clearing later. Wind: variable.",
-  "A ridge of high pressure. Outlook: tense.",
-  "Mist in low-lying areas. Avoid still rooms.",
-  "Sunshine and showers, not necessarily of rain.",
-  "A brisk south-westerly. Hold onto your hat.",
-  "Fog expected on the M25. And in several lifts.",
-  "Unseasonably close. Windows recommended."
-];
-
 window.FARTLE_CLASSIFIEDS = [
   {
     id: "lost-atmosphere",

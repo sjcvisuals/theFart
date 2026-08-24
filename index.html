@@ -41,27 +41,13 @@
             <p class="meta-date" id="date-line">
               <time datetime="">Today</time>
             </p>
+            <p class="meta-weather" id="weather-line">
+              <span class="weather-icon" id="weather-icon" aria-hidden="true"></span>
+              <span class="weather-temp" id="weather-temp">—°</span>
+            </p>
             <p class="meta-price">50p</p>
           </div>
-
-          <p class="weather-line" id="weather-line">Forecast to follow.</p>
         </header>
-
-        <nav class="paper-nav" aria-label="Edition sections">
-          <ul>
-            <li><a href="#news-left">World</a></li>
-            <li><a href="#news-right">News</a></li>
-            <li><a href="#todays-fartle">Farts</a></li>
-            <li>
-              <a
-                href="https://theonion.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                >The Onion</a
-              >
-            </li>
-          </ul>
-        </nav>
 
         <noscript>
           <p class="noscript">
@@ -78,15 +64,19 @@
 
             <section class="col col-center" id="todays-fartle" aria-labelledby="game-headline">
               <article class="feature">
-                <p class="breaking-badge">Breaking wind</p>
-                <p class="feature-kicker">The front-page puzzle</p>
+                <div class="feature-top">
+                  <p class="breaking-badge">Breaking wind</p>
+                  <p class="feature-kicker">The front-page puzzle</p>
+                </div>
                 <h2 class="feature-headline" id="game-headline">Today's Fartle</h2>
                 <p class="feature-standfirst">
                   One object. Five guesses. An unreasonable amount of gas.
                 </p>
 
                 <figure class="object-portrait">
-                  <div class="object-visual" id="object-visual" aria-hidden="true">?</div>
+                  <div class="object-visual" id="object-visual">
+                    <span class="object-fallback" id="object-fallback">?</span>
+                  </div>
                   <figcaption>
                     <span id="object-caption">Today's object</span>
                   </figcaption>
@@ -100,24 +90,24 @@
                 <form class="guess-form" id="guess-form" novalidate>
                   <div class="field">
                     <label for="guess-input">Your estimate</label>
-                    <input
-                      id="guess-input"
-                      name="guess"
-                      type="text"
-                      inputmode="numeric"
-                      autocomplete="off"
-                      autocorrect="off"
-                      spellcheck="false"
-                      enterkeyhint="done"
-                      aria-describedby="guess-hint guess-error"
-                      required
-                    />
-                    <p class="field-hint" id="guess-hint">
-                      Whole numbers only. No decimals, no noughts of despair.
-                    </p>
+                    <div class="guess-row">
+                      <input
+                        id="guess-input"
+                        name="guess"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        autocorrect="off"
+                        spellcheck="false"
+                        enterkeyhint="done"
+                        aria-describedby="guess-hint guess-error"
+                        required
+                      />
+                      <button type="submit" class="guess-button" id="guess-button">Guess</button>
+                    </div>
+                    <p class="field-hint" id="guess-hint">Whole numbers only.</p>
                   </div>
                   <p class="field-error" id="guess-error" hidden></p>
-                  <button type="submit" class="guess-button" id="guess-button">Guess</button>
                 </form>
 
                 <div
@@ -187,8 +177,8 @@
           </p>
           <p class="footer-small">
             Fartle is a comedy approximation, not a laboratory. One average fart is taken as
-            100&nbsp;mL. Printed on imaginary newsprint. No actual objects were filled in the making
-            of this edition.
+            100&nbsp;mL. Object photographs are sourced from Wikipedia/Wikimedia Commons and printed
+            in newsprint grey. Weather is London, via Open-Meteo.
           </p>
         </footer>
       </div>
