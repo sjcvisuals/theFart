@@ -39,6 +39,7 @@ Then visit `http://localhost:8080`.
 │   └── sounds/
 │       └── fart.mp3
 ├── README.md
+├── CNAME
 └── .nojekyll
 ```
 
@@ -100,3 +101,27 @@ The site is static and uses relative paths, so it works at `https://USERNAME.git
 In the GitHub UI this folder option is labelled **/(root)** — the repository root, not `/docs`.
 
 GitHub Pages will publish the site after a short wait. The `.nojekyll` file tells Pages not to process the site with Jekyll.
+
+## Point www.dailyfart.com at GitHub Pages
+
+GitHub Pages is free. This repo is already a static site (`index.html` plus CSS, JS, and assets), so you do not need a paid host, a server, or a build step.
+
+The `CNAME` file in the repo root is set to `www.dailyfart.com`. After you merge this to `main` and wire up DNS, GitHub will serve the same Pages site at that address.
+
+1. **Keep Pages on `main` / (root)** — already set if the game loads at `https://sjcvisuals.github.io/theFart/`.
+2. **In the repo:** Settings → Pages → Custom domain → enter `www.dailyfart.com` → Save. Tick **Enforce HTTPS** once GitHub has issued the certificate (often 5–30 minutes after DNS works).
+3. **At your domain registrar** (Namecheap, Google Domains, Cloudflare, etc.), add DNS records. GitHub Pages IPs are:
+
+   | Type | Name | Value |
+   | --- | --- | --- |
+   | `CNAME` | `www` | `sjcvisuals.github.io` |
+   | `A` | `@` (apex) | `185.199.108.153` |
+   | `A` | `@` | `185.199.109.153` |
+   | `A` | `@` | `185.199.110.153` |
+   | `A` | `@` | `185.199.111.153` |
+
+   The `www` CNAME is the one that matters for `www.dailyfart.com`. The four `A` records make the bare `dailyfart.com` work too, instead of showing a registrar parking page. If your registrar supports `ALIAS` or `ANAME` for `@`, that can replace the `A` records.
+
+4. Wait for DNS (often minutes, sometimes a few hours). Then visit `https://www.dailyfart.com`.
+
+You still pay the domain registrar for the name itself (typically a few pounds a year). GitHub Pages hosting stays free. Because every path in this project is relative, the game works at the domain root — you do not need `/theFart/` on the custom domain.

@@ -76,6 +76,7 @@
       await renderNews(puzzle.date);
       renderClassifieds();
       await renderLeaderboard();
+      pinPlayStack();
     } catch (err) {
       if (els.objectDescription) {
         els.objectDescription.textContent =
@@ -103,6 +104,9 @@
     els.guessBody = document.getElementById("guess-body");
     els.liveRegion = document.getElementById("live-region");
     els.outcome = document.getElementById("outcome");
+    els.playStack = document.getElementById("play-stack");
+    els.feature = document.getElementById("feature");
+    els.centerBelow = document.getElementById("center-below");
     els.newsLeft = document.getElementById("news-left");
     els.newsRight = document.getElementById("news-right");
     els.newsBottom = document.getElementById("news-bottom");
@@ -128,6 +132,7 @@
         els.resetButton.addEventListener("click", resetTodaysPuzzle);
       }
     }
+    window.addEventListener("resize", onPlayStackResize);
   }
 
   function resetTodaysPuzzle() {
@@ -147,6 +152,53 @@
       // Still reload so testers can try again.
     }
     window.location.reload();
+  }
+
+  function gameIsActive() {
+    return !!(game && (game.guesses.length > 0 || game.status !== "playing"));
+  }
+
+  function pinPlayStack() {
+    if (!els.playStack || !els.feature || !els.centerBelow) {
+      return;
+    }
+
+    if (gameIsActive()) {
+      els.playStack.classList.add("game-priority", "game-priority-hide");
+      els.centerBelow.setAttribute("aria-hidden", "true");
+      return;
+    }
+
+    window.requestAnimationFrame(function () {
+      if (!els.feature || els.playStack.classList.contains("is-pinned")) {
+        return;
+      }
+      var rest = Math.ceil(els.feature.getBoundingClientRect().height);
+      els.playStack.style.setProperty("--feature-rest", rest + "px");
+      els.playStack.classList.add("is-pinned");
+    });
+  }
+
+  function coverBelowArticles() {
+    if (!els.playStack || !els.centerBelow || !gameIsActive()) {
+      return;
+    }
+    els.playStack.classList.add("game-priority");
+    els.centerBelow.setAttribute("aria-hidden", "true");
+  }
+
+  function onPlayStackResize() {
+    if (!els.playStack || !els.feature) {
+      return;
+    }
+    if (!els.playStack.classList.contains("is-pinned")) {
+      return;
+    }
+    if (els.playStack.classList.contains("game-priority")) {
+      return;
+    }
+    var rest = Math.ceil(els.feature.getBoundingClientRect().height);
+    els.playStack.style.setProperty("--feature-rest", rest + "px");
   }
 
   function localDateString(date) {
@@ -339,6 +391,7 @@
       }
       els.objectCaption.textContent =
         (object.caption || object.name) + " Photograph: Wikipedia.";
+      onPlayStackResize();
     };
     img.onerror = function () {
       img.remove();
@@ -534,6 +587,7 @@
 
   function submitGuess(value) {
     game.guesses.push(value);
+    coverBelowArticles();
     var answer = puzzle.object.fartCount;
     var feedback = calculateFeedback(value, answer);
 

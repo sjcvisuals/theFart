@@ -75,12 +75,14 @@
             </aside>
 
             <section class="col col-center" id="todays-fartle" aria-labelledby="game-headline">
-              <article class="feature">
+              <div class="play-stack" id="play-stack">
+              <article class="feature" id="feature">
                 <div class="feature-top">
                   <p class="breaking-badge">Breaking wind</p>
                   <p class="feature-kicker">The front-page puzzle</p>
                 </div>
                 <h2 class="feature-headline" id="game-headline">Today's Fartle</h2>
+                <p class="play-cue">Your move — five guesses, one object</p>
                 <p class="feature-standfirst">
                   One object. Five guesses. An unreasonable amount of gas.
                 </p>
@@ -151,9 +153,10 @@
                 <div class="outcome" id="outcome" hidden></div>
               </article>
 
-              <div class="center-below" aria-labelledby="center-news-label">
+              <div class="center-below" id="center-below" aria-labelledby="center-news-label">
                 <p class="section-label" id="center-news-label">Also today</p>
                 <div id="news-center" class="article-stack"></div>
+              </div>
               </div>
             </section>
 
