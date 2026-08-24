@@ -39,6 +39,7 @@ Then visit `http://localhost:8080`.
 │   └── sounds/
 │       └── fart.mp3
 ├── README.md
+├── CNAME
 └── .nojekyll
 ```
 
@@ -101,26 +102,25 @@ In the GitHub UI this folder option is labelled **/(root)** — the repository r
 
 GitHub Pages will publish the site after a short wait. The `.nojekyll` file tells Pages not to process the site with Jekyll.
 
-## Point www.dailyfart.com at GitHub Pages later
+## Point www.fartdaily.com at GitHub Pages
 
-GitHub Pages is free. This repo is already a static site (`index.html` plus CSS, JS, and assets), so you do not need a paid host or a server.
+GitHub Pages is free. The `CNAME` file in this repo is `www.fartdaily.com`.
 
-Do **not** add a `CNAME` file until the domain’s DNS already points at GitHub. A `CNAME` in the repo makes Pages redirect `sjcvisuals.github.io/theFart/` to `www.dailyfart.com`. If DNS is not ready, the live game disappears.
+GoDaddy already has the `www` CNAME pointing at `sjcvisuals.github.io`. After this file is on `main`, finish the link in GitHub:
 
-When you are ready:
+1. Open https://github.com/sjcvisuals/theFart/settings/pages
+2. Under **Custom domain**, type `www.fartdaily.com` and click **Save** (skip if GitHub already picked it up from the `CNAME` file).
+3. When the DNS check is green, tick **Enforce HTTPS**.
 
-1. At your domain registrar, add DNS first:
+To make the bare name `fartdaily.com` also work, in GoDaddy → **DNS** → **DNS Records**, delete the parked `A` records on `@` (`76.223.105.230` and `13.248.243.5`) and add four GitHub `A` records:
 
-   | Type | Name | Value |
-   | --- | --- | --- |
-   | `CNAME` | `www` | `sjcvisuals.github.io` |
-   | `A` | `@` (apex) | `185.199.108.153` |
-   | `A` | `@` | `185.199.109.153` |
-   | `A` | `@` | `185.199.110.153` |
-   | `A` | `@` | `185.199.111.153` |
+| Type | Name | Value |
+| --- | --- | --- |
+| `A` | `@` | `185.199.108.153` |
+| `A` | `@` | `185.199.109.153` |
+| `A` | `@` | `185.199.110.153` |
+| `A` | `@` | `185.199.111.153` |
 
-2. Wait until `www.dailyfart.com` resolves to GitHub (minutes to a few hours).
-3. Add a `CNAME` file in the repo root containing only `www.dailyfart.com`, or set that custom domain under Settings → Pages.
-4. Tick **Enforce HTTPS** once GitHub has issued the certificate.
+Leave the existing `www` CNAME (`www` → `sjcvisuals.github.io`) as it is.
 
-The domain name itself still costs a few pounds a year at the registrar. Hosting stays free. Relative paths mean the game will sit at `https://www.dailyfart.com/` with no `/theFart/` suffix.
+The domain costs a yearly GoDaddy renewal. Hosting stays free. The game will sit at `https://www.fartdaily.com/` with no `/theFart/` suffix.
