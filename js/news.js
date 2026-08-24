@@ -1,123 +1,64 @@
 /**
- * Newspaper copy for The Daily Fart.
+ * Daily edition copy from The Onion.
  *
- * Articles are stored in a simple, API-shaped list so they can later be
- * replaced with a real news feed (headline, summary, section, byline).
+ * Headlines are fetched at runtime from The Onion's public RSS feed and
+ * linked back to the original articles. Nothing from The Onion is stored
+ * in this repository. No API key is required.
  *
- * The game must run with no API key. loadNewsArticles() currently returns
- * this local data; swap the body of that function to call a backend later.
+ * loadNewsArticles(dateString) picks a stable set for the local calendar
+ * date so the columns change with each new Fartle, not on every refresh.
  */
-window.FARTLE_NEWS_API = {
-  /**
-   * Optional future endpoint. Left blank on purpose.
-   * Example: "https://example.com/api/headlines"
-   */
-  url: "",
-  /**
-   * Fetch articles for the edition.
-   * @returns {Promise<Array<object>>}
-   */
-  async loadNewsArticles() {
-    // Future replacement:
-    // const response = await fetch(this.url, { headers: { ... } });
-    // if (!response.ok) throw new Error("Newsroom silent");
-    // return response.json();
-    return window.FARTLE_NEWS;
+(function () {
+  "use strict";
+
+  window.FARTLE_NEWS_API = {
+  homeUrl: "https://theonion.com/",
+  feedUrl: "https://theonion.com/feed/",
+  jsonFeedUrl:
+    "https://api.rss2json.com/v1/api.json?rss_url=" +
+    encodeURIComponent("https://theonion.com/feed/"),
+  dailyCount: 6,
+  cacheKey: "fartle.v1.onion",
+
+  async loadNewsArticles(dateString) {
+    var date = dateString || todayStamp();
+    var cached = readEdition(this.cacheKey, date);
+    if (cached && cached.length) {
+      return assignColumns(cached);
+    }
+
+    var items = [];
+    try {
+      items = await this.fetchEdition();
+    } catch (err) {
+      items = [];
+    }
+
+    if (!items.length) {
+      return [];
+    }
+
+    var picked = pickDaily(items, date, this.dailyCount);
+    writeEdition(this.cacheKey, date, picked);
+    return assignColumns(picked);
+  },
+
+  async fetchEdition() {
+    var jsonResponse = await fetchWithTimeout(this.jsonFeedUrl, 8000);
+    if (!jsonResponse.ok) {
+      throw new Error("Onion wires down");
+    }
+    var data = await jsonResponse.json();
+    if (!data || data.status !== "ok" || !Array.isArray(data.items)) {
+      throw new Error("Onion wires unreadable");
+    }
+    var items = data.items.map(fromJsonItem).filter(Boolean);
+    if (!items.length) {
+      throw new Error("Onion wires empty");
+    }
+    return items;
   }
 };
-
-window.FARTLE_NEWS = [
-  {
-    id: "pm-crisis",
-    column: "left",
-    section: "Politics",
-    kicker: "Westminster",
-    headline: "Prime Minister Faces Fresh FART Crisis",
-    summary:
-      "Allies insisted the situation was 'under control' as another awkward briefing leaked from No. 10. Experts remain divided over whether the nation is prepared.",
-    byline: "By P. Windbag"
-  },
-  {
-    id: "deep-space",
-    column: "left",
-    section: "Science",
-    kicker: "Astronomy",
-    headline: "Scientists Discover Mysterious FART in Deep Space",
-    summary:
-      "Radio telescopes in Cheshire picked up a low-frequency burst that researchers described as 'unexplained, spherical, and faintly embarrassing'. Peer review continues, windows closed.",
-    byline: "By Dr I. M. Gaseous"
-  },
-  {
-    id: "un-talks",
-    column: "left",
-    section: "World",
-    kicker: "Diplomacy",
-    headline: "United Nations Calls Emergency Session Over Unexplained FART",
-    summary:
-      "Delegates agreed the incident was 'deeply regrettable' and promised a strongly worded communique. Translation headsets were briefly abandoned.",
-    byline: "By A. Envoy"
-  },
-  {
-    id: "england-sport",
-    column: "right",
-    section: "Sport",
-    kicker: "The back page",
-    headline: "England Prepare for Crucial FART Showdown",
-    summary:
-      "The manager asked supporters to get behind the team and, if possible, slightly further behind. Training-ground sources reported 'a lot of shape work'.",
-    byline: "By G. Kick"
-  },
-  {
-    id: "tech-giant",
-    column: "right",
-    section: "Technology",
-    kicker: "Silicon roundabout",
-    headline: "Technology Giant Unveils Revolutionary New FART",
-    summary:
-      "The device is thinner, quieter, and available in three colours nobody asked for. Analysts said it would change everything, then opened a window.",
-    byline: "By C. Lick"
-  },
-  {
-    id: "markets",
-    column: "right",
-    section: "Business",
-    kicker: "Fartonomics",
-    headline: "Markets Rise After Surprise FART Announcement",
-    summary:
-      "Traders caught wind of the news shortly after lunch. Futures remained volatile, gilts held their nerve, and at least one analyst asked to work from home.",
-    byline: "By L. Sterling"
-  },
-  {
-    id: "awards",
-    column: "bottom",
-    section: "Entertainment",
-    kicker: "Showbusiness",
-    headline: "Awards Season Thrown Into Chaos By Surprise FART",
-    summary:
-      "A leading actor described the moment as 'raw' and 'unscripted'. The orchestra played on, professionally.",
-    byline: "By T. Footlight"
-  },
-  {
-    id: "weather-warning",
-    column: "bottom",
-    section: "Weather",
-    kicker: "Met Office",
-    headline: "Forecasters Issue Rare Amber FART Warning",
-    summary:
-      "High pressure is expected to build from the west, with a chance of isolated gusts after tea. The public is advised to remain indoors, or at least upwind.",
-    byline: "By F. Cast"
-  },
-  {
-    id: "high-street",
-    column: "bottom",
-    section: "Business",
-    kicker: "The shops",
-    headline: "High Street Braces For Weekend Of Heavy FART",
-    summary:
-      "Retailers reported strong footfall and weak air quality. One department store offered a silent hour, which lasted eleven minutes.",
-    byline: "By M. Till"
-  }
-];
 
 window.FARTLE_WEATHER = [
   "Scattered toots, clearing later. Wind: variable.",
@@ -146,3 +87,167 @@ window.FARTLE_CLASSIFIEDS = [
     text: "Junior reporter required. Must be able to hold a thought, and it in."
   }
 ];
+
+function todayStamp() {
+  var d = new Date();
+  var m = String(d.getMonth() + 1).padStart(2, "0");
+  var day = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + m + "-" + day;
+}
+
+async function fetchWithTimeout(url, ms) {
+  var controller = new AbortController();
+  var timer = window.setTimeout(function () {
+    controller.abort();
+  }, ms);
+  try {
+    return await fetch(url, { mode: "cors", signal: controller.signal });
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+function fromJsonItem(item) {
+  return normalizeItem(item || {});
+}
+
+function normalizeItem(item) {
+  var url = cleanOnionUrl(item.link || item.url);
+  var headline = decodeEntities(String(item.title || "").trim());
+  if (!url || !headline) {
+    return null;
+  }
+  var summary = tidySummary(plainText(item.description || item.content || ""));
+  var section = "";
+  if (Array.isArray(item.categories) && item.categories.length) {
+    section = String(item.categories[0] || "").trim();
+  }
+  return {
+    id: url,
+    headline: headline,
+    summary: summary,
+    url: url,
+    section: section,
+    byline: item.author ? String(item.author).trim() : "The Onion",
+    source: "The Onion"
+  };
+}
+
+function cleanOnionUrl(value) {
+  try {
+    var url = new URL(String(value || ""));
+    if (!/(^|\.)theonion\.com$/i.test(url.hostname)) {
+      return "";
+    }
+    url.hash = "";
+    return url.toString();
+  } catch (err) {
+    return "";
+  }
+}
+
+function pickDaily(items, dateString, count) {
+  var n = Math.min(count, items.length);
+  if (!n) {
+    return [];
+  }
+  var start = dateSeed(dateString) % items.length;
+  var picked = [];
+  var seen = {};
+  var i = 0;
+  while (picked.length < n && i < items.length * 2) {
+    var item = items[(start + i) % items.length];
+    i += 1;
+    if (!item || seen[item.url]) {
+      continue;
+    }
+    seen[item.url] = true;
+    picked.push(item);
+  }
+  return picked;
+}
+
+function assignColumns(items) {
+  return items.map(function (item, index) {
+    var copy = {};
+    Object.keys(item).forEach(function (key) {
+      copy[key] = item[key];
+    });
+    if (index < 2) {
+      copy.column = "left";
+    } else if (index < 4) {
+      copy.column = "right";
+    } else {
+      copy.column = "bottom";
+    }
+    return copy;
+  });
+}
+
+function dateSeed(dateString) {
+  var n = 0;
+  var i;
+  for (i = 0; i < dateString.length; i += 1) {
+    n = (n * 31 + dateString.charCodeAt(i)) >>> 0;
+  }
+  return n;
+}
+
+function plainText(html) {
+  if (!html) {
+    return "";
+  }
+  var doc = new DOMParser().parseFromString(String(html), "text/html");
+  var text = (doc.body && doc.body.textContent) || "";
+  return decodeEntities(text).replace(/\s+/g, " ").trim();
+}
+
+function tidySummary(text) {
+  var cleaned = String(text || "")
+    .replace(/The post\s.+?\sappeared first on The Onion\.?/i, "")
+    .replace(/What do you think\??/i, "")
+    .trim();
+  if (cleaned.length <= 180) {
+    return cleaned;
+  }
+  var cut = cleaned.slice(0, 180);
+  var last = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("? "));
+  if (last > 70) {
+    return cut.slice(0, last + 1);
+  }
+  return cut.replace(/\s+\S*$/, "") + "…";
+}
+
+function decodeEntities(value) {
+  var area = document.createElement("textarea");
+  area.innerHTML = value;
+  return area.value;
+}
+
+function readEdition(key, date) {
+  try {
+    var raw = window.localStorage.getItem(key);
+    if (!raw) {
+      return null;
+    }
+    var parsed = JSON.parse(raw);
+    if (!parsed || parsed.date !== date || !Array.isArray(parsed.articles)) {
+      return null;
+    }
+    return parsed.articles;
+  } catch (err) {
+    return null;
+  }
+}
+
+function writeEdition(key, date, articles) {
+  try {
+    window.localStorage.setItem(
+      key,
+      JSON.stringify({ date: date, articles: articles })
+    );
+  } catch (err) {
+    // Ignore full or private storage.
+  }
+}
+})();
