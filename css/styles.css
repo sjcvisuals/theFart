@@ -338,7 +338,8 @@ input:focus-visible {
 }
 
 .col-left .section-label[hidden],
-.col-right .section-label[hidden] {
+.col-right .section-label[hidden],
+.bottom-news .section-label[hidden] {
   display: none;
 }
 
