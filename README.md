@@ -73,14 +73,17 @@ There is no server. Scores are saved on **this device only**.
 | `fartle.v1.scores` | Fart Legends entries (name, guesses, date, object, answer) |
 | `fartle.v1.muted` | Mute preference for the win sound |
 | `fartle.v1.photos` | Cached Wikipedia thumbnail URL for today's object |
+| `fartle.v2.onion` | Cached Onion headlines for today's date |
 
 The scoreboard lists today's best scores on this device, sorted by fewest guesses. It is **not** a global multiplayer leaderboard.
 
 `ScoreRepository` in `js/game.js` is a small async wrapper around `localStorage`. A backend such as Supabase can replace that object later without rewriting the rest of the game.
 
-Parody news is fetched live from [The Onion](https://theonion.com/) RSS feed. A date-based picker chooses six headlines for the day so the columns change with the puzzle, not on every refresh. Each headline links to the original Onion article. If the feed cannot be reached, the columns point readers to theonion.com instead.
+Parody news is fetched live from [The Onion](https://theonion.com/) RSS feed. A date-based picker chooses about ten headlines for the day so the side columns stay full and change with the puzzle, not on every refresh. Each Onion headline links to the original article. The side columns are then padded with original Daily Fart “home news” and “in brief” items. If the Onion feed cannot be reached, those local briefs still fill the page and the Onion columns point readers to theonion.com.
 
-The game runs with no API key. Direct RSS is attempted first; a public RSS-to-JSON helper is used when the browser blocks cross-origin requests.
+There is a small **Reset puzzle** control in the masthead for testing. It clears today’s guesses (and today’s local Fart Legends entries) on this device and reloads the page. Set `SHOW_TEST_RESET` to `false` in `js/game.js` before a public launch if you do not want it.
+
+The game runs with no API key. A public RSS-to-JSON helper is used so the browser can read The Onion feed.
 
 ## Deploy on GitHub Pages
 

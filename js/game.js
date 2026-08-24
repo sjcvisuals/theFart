@@ -6,6 +6,7 @@
   var MAX_GUESS = 999999999;
   var NAME_MAX_LENGTH = 24;
   var SOUND_SRC = "assets/sounds/fart.mp3";
+  var SHOW_TEST_RESET = true;
   var STORAGE = {
     game: "fartle.v1.game",
     scores: "fartle.v1.scores",
@@ -105,8 +106,11 @@
     els.newsLeft = document.getElementById("news-left");
     els.newsRight = document.getElementById("news-right");
     els.newsBottom = document.getElementById("news-bottom");
+    els.briefsLeft = document.getElementById("briefs-left");
+    els.briefsRight = document.getElementById("briefs-right");
     els.classifieds = document.getElementById("classifieds");
     els.legendsList = document.getElementById("legends-list");
+    els.resetButton = document.getElementById("reset-button");
     els.muteButton = document.getElementById("mute-button");
     els.muteIcon = document.getElementById("mute-icon");
     els.muteLabel = document.getElementById("mute-label");
@@ -116,6 +120,32 @@
   function bindEvents() {
     els.guessForm.addEventListener("submit", onGuessSubmit);
     els.muteButton.addEventListener("click", toggleMute);
+    if (els.resetButton) {
+      if (!SHOW_TEST_RESET) {
+        els.resetButton.hidden = true;
+      } else {
+        els.resetButton.addEventListener("click", resetTodaysPuzzle);
+      }
+    }
+  }
+
+  function resetTodaysPuzzle() {
+    var today = puzzle && puzzle.date;
+    try {
+      window.localStorage.removeItem(STORAGE.game);
+      if (today) {
+        var scores = readJson(STORAGE.scores, []);
+        writeJson(
+          STORAGE.scores,
+          scores.filter(function (entry) {
+            return !entry || entry.date !== today;
+          })
+        );
+      }
+    } catch (err) {
+      // Still reload so testers can try again.
+    }
+    window.location.reload();
   }
 
   function localDateString(date) {
@@ -877,9 +907,22 @@
     fillColumn(els.newsRight, [], "");
     fillColumn(els.newsBottom, [], "");
 
+    var api = window.FARTLE_NEWS_API;
+    var briefs = [];
+    try {
+      briefs = api && api.loadBriefs ? api.loadBriefs(dateString) : [];
+    } catch (err) {
+      briefs = [];
+    }
+    var leftBriefs = briefs.filter(inColumn("left"));
+    var rightBriefs = briefs.filter(inColumn("right"));
+    fillColumn(els.briefsLeft, leftBriefs, "");
+    fillColumn(els.briefsRight, rightBriefs, "");
+    toggleLabel("briefs-left-label", leftBriefs.length > 0);
+    toggleLabel("briefs-right-label", rightBriefs.length > 0);
+
     var articles = [];
     try {
-      var api = window.FARTLE_NEWS_API;
       articles =
         api && api.loadNewsArticles
           ? await api.loadNewsArticles(dateString)
@@ -894,6 +937,13 @@
     fillColumn(els.newsBottom, articles.filter(inColumn("bottom")), "");
   }
 
+  function toggleLabel(id, visible) {
+    var label = document.getElementById(id);
+    if (label) {
+      label.hidden = !visible;
+    }
+  }
+
   function inColumn(column) {
     return function (article) {
       return article.column === column;
@@ -901,6 +951,9 @@
   }
 
   function fillColumn(root, articles, emptyText) {
+    if (!root) {
+      return;
+    }
     root.innerHTML = "";
     if (!articles.length) {
       if (emptyText) {
@@ -937,16 +990,27 @@
 
   function buildArticle(article) {
     var card = document.createElement("article");
-    card.className = "article-card";
+    var isBrief = article.kind === "brief";
+    card.className = isBrief ? "article-card brief-card" : "article-card";
 
     var kicker = document.createElement("p");
     kicker.className = "article-kicker";
-    kicker.textContent = article.section
-      ? "The Onion · " + article.section
-      : "The Onion";
+    if (isBrief) {
+      kicker.textContent = article.section
+        ? "The Daily Fart · " + article.section
+        : "The Daily Fart";
+    } else {
+      kicker.textContent = article.section
+        ? "The Onion · " + article.section
+        : "The Onion";
+    }
 
     var heading = document.createElement("h3");
-    heading.appendChild(onionLink(article.url, article.headline));
+    if (!isBrief && article.url) {
+      heading.appendChild(onionLink(article.url, article.headline));
+    } else {
+      heading.textContent = article.headline;
+    }
 
     card.appendChild(kicker);
     card.appendChild(heading);
@@ -958,10 +1022,12 @@
       card.appendChild(dek);
     }
 
-    var source = document.createElement("p");
-    source.className = "article-source";
-    source.appendChild(onionLink(article.url, "Continue on The Onion"));
-    card.appendChild(source);
+    if (!isBrief && article.url) {
+      var source = document.createElement("p");
+      source.className = "article-source";
+      source.appendChild(onionLink(article.url, "Continue on The Onion"));
+      card.appendChild(source);
+    }
     return card;
   }
 

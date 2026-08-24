@@ -19,17 +19,27 @@
         <header class="masthead">
           <div class="masthead-top">
             <p class="edition-flag">Late city edition</p>
-            <button
-              type="button"
-              class="mute-button"
-              id="mute-button"
-              aria-pressed="false"
-              aria-label="Mute sound"
-              title="Mute sound"
-            >
-              <span aria-hidden="true" id="mute-icon">🔊</span>
-              <span class="mute-label" id="mute-label">Sound on</span>
-            </button>
+            <div class="masthead-tools">
+              <button
+                type="button"
+                class="test-reset"
+                id="reset-button"
+                title="Temporary test control. Clears today's guesses on this device."
+              >
+                Reset puzzle
+              </button>
+              <button
+                type="button"
+                class="mute-button"
+                id="mute-button"
+                aria-pressed="false"
+                aria-label="Mute sound"
+                title="Mute sound"
+              >
+                <span aria-hidden="true" id="mute-icon">🔊</span>
+                <span class="mute-label" id="mute-label">Sound on</span>
+              </button>
+            </div>
           </div>
 
           <p class="masthead-flourish" aria-hidden="true">★ Est. 2026 ★</p>
@@ -60,6 +70,8 @@
             <aside class="col col-left" aria-labelledby="onion-left-label">
               <p class="section-label" id="onion-left-label">From The Onion</p>
               <div id="news-left" class="article-stack"></div>
+              <p class="section-label" id="briefs-left-label">Home news</p>
+              <div id="briefs-left" class="article-stack"></div>
             </aside>
 
             <section class="col col-center" id="todays-fartle" aria-labelledby="game-headline">
@@ -143,6 +155,8 @@
             <aside class="col col-right" aria-labelledby="onion-right-label">
               <p class="section-label" id="onion-right-label">More Onion</p>
               <div id="news-right" class="article-stack"></div>
+              <p class="section-label" id="briefs-right-label">In brief</p>
+              <div id="briefs-right" class="article-stack"></div>
             </aside>
           </div>
 

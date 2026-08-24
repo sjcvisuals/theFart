@@ -131,6 +131,31 @@ input:focus-visible {
   font-weight: 700;
 }
 
+.masthead-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.test-reset {
+  margin: 0;
+  padding: 0.25rem 0.45rem;
+  border: 1px dashed var(--rule-thin);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.test-reset:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
 .mute-button {
   display: inline-flex;
   align-items: center;
@@ -310,6 +335,20 @@ input:focus-visible {
   padding-bottom: 0.45rem;
   border-bottom: 1px solid var(--rule);
   margin-bottom: 0.15rem;
+}
+
+.col-left .section-label[hidden],
+.col-right .section-label[hidden] {
+  display: none;
+}
+
+.col-left .article-stack + .section-label,
+.col-right .article-stack + .section-label {
+  margin-top: 1.2rem;
+}
+
+.brief-card h3 {
+  font-size: 1.02rem;
 }
 
 .article-kicker,
