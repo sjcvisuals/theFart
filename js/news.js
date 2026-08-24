@@ -53,7 +53,13 @@
         copy[key] = item[key];
       });
       copy.kind = "brief";
-      copy.column = index < picked.length / 2 ? "left" : "right";
+      if (index < 3) {
+        copy.column = "left";
+      } else if (index < 6) {
+        copy.column = "right";
+      } else {
+        copy.column = "center";
+      }
       return copy;
     });
   },
@@ -318,14 +324,25 @@ function pickDaily(items, dateString, count) {
 
 function assignColumns(items) {
   var n = items.length;
-  var leftN;
-  var rightN;
+  var leftN = 0;
+  var rightN = 0;
+  var centerN = 0;
   if (n >= 10) {
-    leftN = 4;
-    rightN = 4;
-  } else if (n >= 6) {
     leftN = 3;
     rightN = 3;
+    centerN = 2;
+  } else if (n >= 8) {
+    leftN = 3;
+    rightN = 3;
+    centerN = 2;
+  } else if (n >= 6) {
+    leftN = 2;
+    rightN = 2;
+    centerN = 2;
+  } else if (n >= 3) {
+    leftN = 1;
+    rightN = 1;
+    centerN = n - 2;
   } else {
     leftN = Math.ceil(n / 2);
     rightN = n - leftN;
@@ -339,6 +356,8 @@ function assignColumns(items) {
       copy.column = "left";
     } else if (index < leftN + rightN) {
       copy.column = "right";
+    } else if (index < leftN + rightN + centerN) {
+      copy.column = "center";
     } else {
       copy.column = "bottom";
     }

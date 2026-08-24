@@ -106,6 +106,7 @@
     els.newsLeft = document.getElementById("news-left");
     els.newsRight = document.getElementById("news-right");
     els.newsBottom = document.getElementById("news-bottom");
+    els.newsCenter = document.getElementById("news-center");
     els.briefsLeft = document.getElementById("briefs-left");
     els.briefsRight = document.getElementById("briefs-right");
     els.classifieds = document.getElementById("classifieds");
@@ -906,6 +907,7 @@
     fillColumn(els.newsLeft, [], "Setting today's Onion type…");
     fillColumn(els.newsRight, [], "");
     fillColumn(els.newsBottom, [], "");
+    fillColumn(els.newsCenter, [], "");
 
     var api = window.FARTLE_NEWS_API;
     var briefs = [];
@@ -916,10 +918,13 @@
     }
     var leftBriefs = briefs.filter(inColumn("left"));
     var rightBriefs = briefs.filter(inColumn("right"));
+    var centerBriefs = briefs.filter(inColumn("center"));
     fillColumn(els.briefsLeft, leftBriefs, "");
     fillColumn(els.briefsRight, rightBriefs, "");
+    fillColumn(els.newsCenter, centerBriefs, "");
     toggleLabel("briefs-left-label", leftBriefs.length > 0);
     toggleLabel("briefs-right-label", rightBriefs.length > 0);
+    toggleLabel("center-news-label", centerBriefs.length > 0);
 
     var articles = [];
     try {
@@ -934,13 +939,19 @@
     var empty = "The Onion wires are delayed. ";
     var leftOnion = articles.filter(inColumn("left"));
     var rightOnion = articles.filter(inColumn("right"));
+    var centerOnion = articles.filter(inColumn("center"));
     var bottomOnion = articles.filter(inColumn("bottom"));
     fillColumn(els.newsLeft, leftOnion, empty);
     fillColumn(els.newsRight, rightOnion, "");
     fillColumn(els.newsBottom, bottomOnion, "");
+    fillColumn(els.newsCenter, centerOnion.concat(centerBriefs), "");
     toggleLabel("onion-left-label", leftOnion.length > 0 || articles.length === 0);
     toggleLabel("onion-right-label", rightOnion.length > 0);
     toggleLabel("onion-bottom-label", bottomOnion.length > 0);
+    toggleLabel(
+      "center-news-label",
+      centerOnion.length + centerBriefs.length > 0
+    );
   }
 
   function toggleLabel(id, visible) {

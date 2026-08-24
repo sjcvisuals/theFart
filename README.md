@@ -79,7 +79,7 @@ The scoreboard lists today's best scores on this device, sorted by fewest guesse
 
 `ScoreRepository` in `js/game.js` is a small async wrapper around `localStorage`. A backend such as Supabase can replace that object later without rewriting the rest of the game.
 
-Parody news is fetched live from [The Onion](https://theonion.com/) RSS feed. A date-based picker chooses about ten headlines for the day so the side columns stay full and change with the puzzle, not on every refresh. Each Onion headline links to the original article. The side columns are then padded with original Daily Fart “home news” and “in brief” items. If the Onion feed cannot be reached, those local briefs still fill the page and the Onion columns point readers to theonion.com.
+Parody news is fetched live from [The Onion](https://theonion.com/) RSS feed. A date-based picker chooses about ten headlines for the day so the paper changes with the puzzle, not on every refresh. Most sit in the left and right columns; a couple continue under the puzzle so the game is framed on three sides. Each Onion headline links to the original article. Original Daily Fart “home news” and “in brief” items pad the sides, with two more under the game. If the Onion feed cannot be reached, those local briefs still fill the page and the Onion columns point readers to theonion.com.
 
 There is a small **Reset puzzle** control in the masthead for testing. It clears today’s guesses (and today’s local Fart Legends entries) on this device and reloads the page. Set `SHOW_TEST_RESET` to `false` in `js/game.js` before a public launch if you do not want it.
 
