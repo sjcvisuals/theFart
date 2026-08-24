@@ -932,9 +932,15 @@
     }
 
     var empty = "The Onion wires are delayed. ";
-    fillColumn(els.newsLeft, articles.filter(inColumn("left")), empty);
-    fillColumn(els.newsRight, articles.filter(inColumn("right")), "");
-    fillColumn(els.newsBottom, articles.filter(inColumn("bottom")), "");
+    var leftOnion = articles.filter(inColumn("left"));
+    var rightOnion = articles.filter(inColumn("right"));
+    var bottomOnion = articles.filter(inColumn("bottom"));
+    fillColumn(els.newsLeft, leftOnion, empty);
+    fillColumn(els.newsRight, rightOnion, "");
+    fillColumn(els.newsBottom, bottomOnion, "");
+    toggleLabel("onion-left-label", leftOnion.length > 0 || articles.length === 0);
+    toggleLabel("onion-right-label", rightOnion.length > 0);
+    toggleLabel("onion-bottom-label", bottomOnion.length > 0);
   }
 
   function toggleLabel(id, visible) {

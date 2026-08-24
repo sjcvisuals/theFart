@@ -16,8 +16,7 @@
   feedUrl: "https://theonion.com/feed/",
   jsonFeedUrl:
     "https://api.rss2json.com/v1/api.json?rss_url=" +
-    encodeURIComponent("https://theonion.com/feed/") +
-    "&count=20",
+    encodeURIComponent("https://theonion.com/feed/"),
   dailyCount: 10,
   briefCount: 8,
   cacheKey: "fartle.v2.onion",
