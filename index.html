@@ -50,11 +50,16 @@
         <nav class="paper-nav" aria-label="Edition sections">
           <ul>
             <li><a href="#news-left">World</a></li>
-            <li><a href="#news-left">UK</a></li>
-            <li><a href="#news-right">Business</a></li>
-            <li><a href="#news-right">Sport</a></li>
-            <li><a href="#news-right">Technology</a></li>
+            <li><a href="#news-right">News</a></li>
             <li><a href="#todays-fartle">Farts</a></li>
+            <li>
+              <a
+                href="https://theonion.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >The Onion</a
+              >
+            </li>
           </ul>
         </nav>
 
@@ -66,7 +71,10 @@
 
         <main>
           <div class="paper-grid">
-            <aside class="col col-left" id="news-left" aria-label="Column one"></aside>
+            <aside class="col col-left" aria-labelledby="onion-left-label">
+              <p class="section-label" id="onion-left-label">From The Onion</p>
+              <div id="news-left" class="article-stack"></div>
+            </aside>
 
             <section class="col col-center" id="todays-fartle" aria-labelledby="game-headline">
               <article class="feature">
@@ -134,16 +142,25 @@
                     </tr>
                   </tbody>
                 </table>
+                <p class="guess-key">
+                  ↗ closer &nbsp;·&nbsp; ↑ higher or lower &nbsp;·&nbsp; ⇧ further out
+                </p>
 
                 <div class="outcome" id="outcome" hidden></div>
               </article>
             </section>
 
-            <aside class="col col-right" id="news-right" aria-label="Column three"></aside>
+            <aside class="col col-right" aria-labelledby="onion-right-label">
+              <p class="section-label" id="onion-right-label">More Onion</p>
+              <div id="news-right" class="article-stack"></div>
+            </aside>
           </div>
 
           <section class="bottom-band">
-            <div class="bottom-news" id="news-bottom" aria-label="Further stories"></div>
+            <div class="bottom-news" aria-labelledby="onion-bottom-label">
+              <p class="section-label" id="onion-bottom-label">Meanwhile</p>
+              <div id="news-bottom" class="article-stack article-stack-wide"></div>
+            </div>
 
             <aside class="legends" id="legends" aria-labelledby="legends-heading">
               <p class="section-label">The roll of honour</p>
@@ -161,6 +178,13 @@
 
         <footer class="paper-footer">
           <p>Independent gastrointestinal journalism since 2026.</p>
+          <p class="footer-credit">
+            Satirical news headlines courtesy of
+            <a href="https://theonion.com/" target="_blank" rel="noopener noreferrer">The Onion</a>,
+            America’s Finest News Source. Each story links to the original article on
+            <a href="https://theonion.com/" target="_blank" rel="noopener noreferrer">theonion.com</a>.
+            The Onion is not affiliated with The Daily Fart.
+          </p>
           <p class="footer-small">
             Fartle is a comedy approximation, not a laboratory. One average fart is taken as
             100&nbsp;mL. Printed on imaginary newsprint. No actual objects were filled in the making

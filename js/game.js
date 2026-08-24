@@ -71,7 +71,7 @@
         renderLoss(false);
       }
 
-      await renderNews();
+      await renderNews(puzzle.date);
       renderClassifieds();
       await renderLeaderboard();
     } catch (err) {
@@ -319,31 +319,52 @@
     announce(feedback.label + ". " + feedback.detail);
   }
 
+  function closenessBand(guess, answer) {
+    var ratio = Math.abs(guess - answer) / answer;
+    if (ratio < 0.12) {
+      return "close";
+    }
+    if (ratio < 0.4) {
+      return "mid";
+    }
+    return "far";
+  }
+
   function calculateFeedback(guess, answer) {
     if (guess === answer) {
       return {
         exact: true,
         direction: "exact",
-        percent: 0,
+        closeness: "exact",
         label: "EXACT",
         detail: "You got the fart."
       };
     }
 
     var direction = guess < answer ? "higher" : "lower";
-    var percent = Math.round((Math.abs(guess - answer) / answer) * 100);
-    var away =
-      percent === 0
-        ? "You were less than 1% away"
-        : "You were " + percent + "% away";
-    var label = direction === "higher" ? "↑ HIGHER" : "↓ LOWER";
+    var band = closenessBand(guess, answer);
+    var copy = {
+      close: {
+        higher: { glyph: "↗", word: "CLOSER", detail: "Higher — you are getting warm." },
+        lower: { glyph: "↘", word: "CLOSER", detail: "Lower — you are getting warm." }
+      },
+      mid: {
+        higher: { glyph: "↑", word: "HIGHER", detail: "Higher." },
+        lower: { glyph: "↓", word: "LOWER", detail: "Lower." }
+      },
+      far: {
+        higher: { glyph: "⇧", word: "FURTHER", detail: "Much higher." },
+        lower: { glyph: "⇩", word: "FURTHER", detail: "Much lower." }
+      }
+    };
+    var chosen = copy[band][direction];
 
     return {
       exact: false,
       direction: direction,
-      percent: percent,
-      label: label,
-      detail: away
+      closeness: band,
+      label: chosen.glyph + " " + chosen.word,
+      detail: chosen.detail
     };
   }
 
@@ -352,15 +373,10 @@
     if (feedback.exact) {
       return { className: "feedback-exact", text: "💨 EXACT" };
     }
-    if (feedback.direction === "higher") {
-      return {
-        className: "feedback-higher",
-        text: "↑ HIGHER — " + feedback.detail
-      };
-    }
     return {
-      className: "feedback-lower",
-      text: "↓ LOWER — " + feedback.detail
+      className:
+        "feedback-" + feedback.direction + " feedback-" + feedback.closeness,
+      text: feedback.label
     };
   }
 
@@ -586,7 +602,23 @@
       if (guess === answer) {
         return "💨";
       }
-      return guess < answer ? "⬆️" : "⬇️";
+      var band = closenessBand(guess, answer);
+      if (guess < answer) {
+        if (band === "close") {
+          return "↗️";
+        }
+        if (band === "far") {
+          return "⏫";
+        }
+        return "⬆️";
+      }
+      if (band === "close") {
+        return "↘️";
+      }
+      if (band === "far") {
+        return "⏬";
+      }
+      return "⬇️";
     });
     var result =
       game.status === "won"
@@ -627,21 +659,26 @@
     return ok;
   }
 
-  async function renderNews() {
+  async function renderNews(dateString) {
+    fillColumn(els.newsLeft, [], "Setting today's Onion type…");
+    fillColumn(els.newsRight, [], "");
+    fillColumn(els.newsBottom, [], "");
+
     var articles = [];
     try {
       var api = window.FARTLE_NEWS_API;
       articles =
         api && api.loadNewsArticles
-          ? await api.loadNewsArticles()
-          : window.FARTLE_NEWS || [];
+          ? await api.loadNewsArticles(dateString)
+          : [];
     } catch (err) {
-      articles = window.FARTLE_NEWS || [];
+      articles = [];
     }
 
-    fillColumn(els.newsLeft, articles.filter(inColumn("left")));
-    fillColumn(els.newsRight, articles.filter(inColumn("right")));
-    fillColumn(els.newsBottom, articles.filter(inColumn("bottom")));
+    var empty = "The Onion wires are delayed. ";
+    fillColumn(els.newsLeft, articles.filter(inColumn("left")), empty);
+    fillColumn(els.newsRight, articles.filter(inColumn("right")), "");
+    fillColumn(els.newsBottom, articles.filter(inColumn("bottom")), "");
   }
 
   function inColumn(column) {
@@ -650,11 +687,39 @@
     };
   }
 
-  function fillColumn(root, articles) {
+  function fillColumn(root, articles, emptyText) {
     root.innerHTML = "";
+    if (!articles.length) {
+      if (emptyText) {
+        root.appendChild(emptyNewsNote(emptyText));
+      }
+      return;
+    }
     articles.forEach(function (article) {
       root.appendChild(buildArticle(article));
     });
+  }
+
+  function emptyNewsNote(emptyText) {
+    var note = document.createElement("p");
+    note.className = "news-empty";
+    note.appendChild(document.createTextNode(emptyText || "The wires are quiet. "));
+    var home = document.createElement("a");
+    home.href = (window.FARTLE_NEWS_API && window.FARTLE_NEWS_API.homeUrl) || "https://theonion.com/";
+    home.target = "_blank";
+    home.rel = "noopener noreferrer";
+    home.textContent = "Read The Onion";
+    note.appendChild(home);
+    return note;
+  }
+
+  function onionLink(url, label) {
+    var link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = label;
+    return link;
   }
 
   function buildArticle(article) {
@@ -663,26 +728,27 @@
 
     var kicker = document.createElement("p");
     kicker.className = "article-kicker";
-    kicker.textContent =
-      (article.section || "News") +
-      (article.kicker ? " · " + article.kicker : "");
+    kicker.textContent = article.section
+      ? "The Onion · " + article.section
+      : "The Onion";
 
     var heading = document.createElement("h3");
-    heading.textContent = article.headline;
-
-    var summary = document.createElement("p");
-    summary.textContent = article.summary;
+    heading.appendChild(onionLink(article.url, article.headline));
 
     card.appendChild(kicker);
     card.appendChild(heading);
-    card.appendChild(summary);
 
-    if (article.byline) {
-      var byline = document.createElement("p");
-      byline.className = "byline";
-      byline.textContent = article.byline;
-      card.appendChild(byline);
+    if (article.summary) {
+      var dek = document.createElement("p");
+      dek.className = "article-dek";
+      dek.textContent = article.summary;
+      card.appendChild(dek);
     }
+
+    var source = document.createElement("p");
+    source.className = "article-source";
+    source.appendChild(onionLink(article.url, "Continue on The Onion"));
+    card.appendChild(source);
     return card;
   }
 
