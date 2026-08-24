@@ -314,6 +314,7 @@ input:focus-visible {
 
 .play-stack.is-pinned > .center-below {
   z-index: 1;
+  margin-top: 0;
   padding-top: calc(var(--feature-rest, 0px) + 0.75rem);
 }
 
@@ -329,10 +330,6 @@ input:focus-visible {
   margin-top: 1.1rem;
   padding-top: 0.85rem;
   border-top: 3px double var(--rule);
-}
-
-.play-stack.is-pinned > .center-below {
-  margin-top: 0;
 }
 
 .col-left,
