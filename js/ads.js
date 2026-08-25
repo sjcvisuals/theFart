@@ -3,8 +3,9 @@
  *
  * Leave adsenseClient empty until Google AdSense has approved the site.
  * House ads still occupy the wells so the paper looks like a paper.
- * GitHub Pages allows donation / crowdfunding links; paste a Ko-fi or
- * similar URL into supportUrl if you want the side well to earn that way.
+ * Exact AdSense clicks: SETUP.md part B.
+ * GitHub Pages allows donation links; paste a Ko-fi URL into supportUrl
+ * if AdSense is refused.
  */
 (function () {
   "use strict";

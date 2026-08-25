@@ -21,12 +21,7 @@
   var copiedTimer = null;
   var confettiTimer = null;
 
-  /**
-   * Device-local scores. Methods return Promises so a backend such as
-   * Supabase can replace this object later without rewriting the game.
-   * This is not a global multiplayer leaderboard.
-   */
-  var ScoreRepository = {
+  var LocalScores = {
     async listForDate(dateString) {
       var all = readJson(STORAGE.scores, []);
       return all
@@ -49,6 +44,31 @@
     }
   };
 
+  var ScoreRepository = {
+    async listForDate(dateString) {
+      var cloud = window.FARTLE_CLOUD;
+      if (cloud && cloud.isReady()) {
+        return cloud.listToday(dateString);
+      }
+      return LocalScores.listForDate(dateString);
+    },
+
+    async add(entry) {
+      var cloud = window.FARTLE_CLOUD;
+      if (cloud && cloud.isReady() && cloud.currentUser()) {
+        return cloud.submitResult({
+          date: entry.date,
+          guesses: entry.guesses,
+          won: entry.won === true,
+          guessList: entry.guessList || [],
+          objectId: entry.objectId,
+          objectName: entry.objectName
+        });
+      }
+      return LocalScores.add(entry);
+    }
+  };
+
   document.addEventListener("DOMContentLoaded", start);
 
   async function start() {
@@ -67,6 +87,12 @@
       renderAttempts();
       setPlayable(game.status === "playing");
 
+      if (window.FARTLE_CLOUD && window.FARTLE_CLOUD.isConfigured()) {
+        await window.FARTLE_CLOUD.init();
+        window.FARTLE_CLOUD.onAuth(onAuthChanged);
+      }
+      paintAuth(window.FARTLE_CLOUD && window.FARTLE_CLOUD.currentUser());
+
       if (game.status === "won") {
         renderWin(false);
       } else if (game.status === "lost") {
@@ -76,6 +102,7 @@
       await renderNews(puzzle.date);
       renderClassifieds();
       await renderLeaderboard();
+      await renderMyRecord();
       pinPlayStack();
     } catch (err) {
       if (els.objectDescription) {
@@ -115,6 +142,19 @@
     els.briefsRight = document.getElementById("briefs-right");
     els.classifieds = document.getElementById("classifieds");
     els.legendsList = document.getElementById("legends-list");
+    els.boardTodayBody = document.getElementById("board-today-body");
+    els.boardAlltimeBody = document.getElementById("board-alltime-body");
+    els.boardToday = document.getElementById("board-today");
+    els.boardAlltime = document.getElementById("board-alltime");
+    els.tabToday = document.getElementById("tab-today");
+    els.tabAlltime = document.getElementById("tab-alltime");
+    els.legendsNote = document.getElementById("legends-note");
+    els.myRecord = document.getElementById("my-record");
+    els.authButton = document.getElementById("auth-button");
+    els.authUser = document.getElementById("auth-user");
+    els.authPhoto = document.getElementById("auth-photo");
+    els.authName = document.getElementById("auth-name");
+    els.signOutButton = document.getElementById("sign-out-button");
     els.resetButton = document.getElementById("reset-button");
     els.muteButton = document.getElementById("mute-button");
     els.muteIcon = document.getElementById("mute-icon");
@@ -133,6 +173,156 @@
       }
     }
     window.addEventListener("resize", onPlayStackResize);
+    if (els.authButton) {
+      els.authButton.addEventListener("click", onSignInClick);
+    }
+    if (els.signOutButton) {
+      els.signOutButton.addEventListener("click", onSignOutClick);
+    }
+    if (els.tabToday) {
+      els.tabToday.addEventListener("click", function () {
+        showBoard("today");
+      });
+    }
+    if (els.tabAlltime) {
+      els.tabAlltime.addEventListener("click", function () {
+        showBoard("alltime");
+      });
+    }
+  }
+
+  async function onSignInClick() {
+    var cloud = window.FARTLE_CLOUD;
+    if (!cloud || !cloud.isReady()) {
+      return;
+    }
+    try {
+      await cloud.signIn();
+    } catch (err) {
+      announce("Could not sign in. Check pop-up blockers, then try again.");
+    }
+  }
+
+  async function onSignOutClick() {
+    var cloud = window.FARTLE_CLOUD;
+    if (cloud) {
+      await cloud.signOut();
+    }
+  }
+
+  async function onAuthChanged(user) {
+    paintAuth(user);
+    await renderLeaderboard();
+    await renderMyRecord();
+    if (
+      user &&
+      game &&
+      !game.named &&
+      (game.status === "won" || game.status === "lost")
+    ) {
+      await publishCloudScore();
+      if (game.status === "won") {
+        renderWin(false);
+      } else {
+        renderLoss(false);
+      }
+    }
+  }
+
+  function paintAuth(user) {
+    var configured =
+      window.FARTLE_CLOUD && window.FARTLE_CLOUD.isConfigured();
+    if (!els.authButton || !els.authUser) {
+      return;
+    }
+    if (!configured) {
+      els.authButton.hidden = true;
+      els.authUser.hidden = true;
+      return;
+    }
+    if (user) {
+      els.authButton.hidden = true;
+      els.authUser.hidden = false;
+      if (els.authName) {
+        els.authName.textContent = user.displayName || "Signed in";
+      }
+      if (els.authPhoto) {
+        if (user.photoURL) {
+          els.authPhoto.src = user.photoURL;
+          els.authPhoto.hidden = false;
+        } else {
+          els.authPhoto.hidden = true;
+        }
+      }
+    } else {
+      els.authButton.hidden = false;
+      els.authUser.hidden = true;
+    }
+  }
+
+  function showBoard(which) {
+    var today = which !== "alltime";
+    if (els.boardToday) {
+      els.boardToday.hidden = !today;
+    }
+    if (els.boardAlltime) {
+      els.boardAlltime.hidden = today;
+    }
+    if (els.tabToday) {
+      els.tabToday.classList.toggle("is-active", today);
+    }
+    if (els.tabAlltime) {
+      els.tabAlltime.classList.toggle("is-active", !today);
+    }
+  }
+
+  function scorePayload() {
+    return {
+      name: "",
+      guesses: game.guesses.length,
+      won: game.status === "won",
+      guessList: game.guesses.slice(),
+      date: puzzle.date,
+      objectId: puzzle.object.id,
+      objectName: puzzle.object.name,
+      answer: puzzle.object.fartCount,
+      createdAt: Date.now()
+    };
+  }
+
+  async function publishCloudScore() {
+    if (!game || game.named) {
+      return;
+    }
+    var cloud = window.FARTLE_CLOUD;
+    if (!cloud || !cloud.isReady() || !cloud.currentUser()) {
+      return;
+    }
+    try {
+      await ScoreRepository.add(scorePayload());
+      game.named = true;
+      saveGame();
+      await renderLeaderboard();
+      await renderMyRecord();
+    } catch (err) {
+      announce("The global board jammed. Try sign-in again.");
+    }
+  }
+
+  function renderSignInToPost() {
+    var wrap = document.createElement("div");
+    wrap.className = "name-form";
+    var p = document.createElement("p");
+    p.className = "outcome-lead";
+    p.textContent = "Sign in with Google to print this result on the global board.";
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "name-button";
+    button.textContent = "Sign in to post";
+    button.addEventListener("click", onSignInClick);
+    wrap.appendChild(p);
+    wrap.appendChild(button);
+    els.outcome.appendChild(wrap);
   }
 
   function resetTodaysPuzzle() {
@@ -725,7 +915,18 @@
     addText(els.outcome, "p", "outcome-lead", lead);
     addText(els.outcome, "p", "outcome-joke", object.successMessage);
 
-    if (!game.named) {
+    var cloud = window.FARTLE_CLOUD;
+    var signedIn = cloud && cloud.isReady() && cloud.currentUser();
+    if (signedIn) {
+      if (game.named) {
+        addText(els.outcome, "p", "outcome-lead", "Printed on the global Fart Legends board.");
+      } else {
+        addText(els.outcome, "p", "outcome-lead", "Posting to the global board…");
+        publishCloudScore();
+      }
+    } else if (cloud && cloud.isReady()) {
+      renderSignInToPost();
+    } else if (!game.named) {
       renderNameForm();
     }
     renderShareControls();
@@ -749,6 +950,16 @@
       "The answer was " + formatNumber(object.fartCount) + " farts."
     );
     addText(els.outcome, "p", "outcome-joke", object.failMessage);
+
+    var cloud = window.FARTLE_CLOUD;
+    var signedIn = cloud && cloud.isReady() && cloud.currentUser();
+    if (signedIn) {
+      if (!game.named) {
+        publishCloudScore();
+      }
+    } else if (cloud && cloud.isReady()) {
+      renderSignInToPost();
+    }
     renderShareControls();
 
     if (fromThisTurn) {
@@ -821,6 +1032,8 @@
       await ScoreRepository.add({
         name: name,
         guesses: game.guesses.length,
+        won: game.status === "won",
+        guessList: game.guesses.slice(),
         date: puzzle.date,
         objectId: puzzle.object.id,
         objectName: puzzle.object.name,
@@ -1119,35 +1332,194 @@
   }
 
   async function renderLeaderboard() {
-    var scores = [];
+    var todayRows = [];
+    var allRows = [];
+    var cloud = window.FARTLE_CLOUD;
+    var global = cloud && cloud.isReady();
+
     try {
-      scores = await ScoreRepository.listForDate(puzzle.date);
+      if (global) {
+        todayRows = await cloud.listToday(puzzle.date);
+        allRows = await cloud.listAllTime();
+      } else {
+        todayRows = await LocalScores.listForDate(puzzle.date);
+      }
     } catch (err) {
-      scores = [];
+      todayRows = [];
+      allRows = [];
     }
 
-    els.legendsList.innerHTML = "";
-    if (!scores.length) {
-      var empty = document.createElement("li");
-      empty.className = "legends-empty";
-      empty.textContent = "No legends today. The press awaits.";
-      els.legendsList.appendChild(empty);
+    if (els.legendsNote) {
+      els.legendsNote.textContent = global
+        ? "Global scores. A win is 50–10 points by speed, plus 5 per streak day."
+        : "Scores on this device until Firebase is set up (SETUP.md).";
+    }
+
+    var byKey = {};
+    allRows.forEach(function (person) {
+      var key = person.uid || person.displayName;
+      byKey[key] = {
+        key: key,
+        name: person.displayName || "Anonymous",
+        allTimeScore: person.allTimeScore || 0,
+        streak: person.currentStreak || 0,
+        today: "—"
+      };
+    });
+    todayRows.forEach(function (entry) {
+      var key = entry.uid || entry.displayName || entry.name;
+      var row = byKey[key] || {
+        key: key,
+        name: entry.displayName || entry.name || "Anonymous",
+        allTimeScore: 0,
+        streak: 0,
+        today: "—"
+      };
+      row.name = entry.displayName || entry.name || row.name;
+      if (entry.won === false) {
+        row.today = "X";
+      } else if (entry.guesses) {
+        row.today = String(entry.guesses);
+      }
+      if (entry.streak != null) {
+        row.streak = entry.streak;
+      }
+      byKey[key] = row;
+    });
+
+    var merged = Object.keys(byKey).map(function (key) {
+      return byKey[key];
+    });
+    var todaySorted = merged
+      .filter(function (row) {
+        return row.today !== "—";
+      })
+      .sort(function (a, b) {
+        if (a.today === "X" && b.today !== "X") {
+          return 1;
+        }
+        if (b.today === "X" && a.today !== "X") {
+          return -1;
+        }
+        if (a.today !== "X" && b.today !== "X" && Number(a.today) !== Number(b.today)) {
+          return Number(a.today) - Number(b.today);
+        }
+        return b.allTimeScore - a.allTimeScore;
+      });
+    var allSorted = merged.slice().sort(function (a, b) {
+      if (b.allTimeScore !== a.allTimeScore) {
+        return b.allTimeScore - a.allTimeScore;
+      }
+      return b.streak - a.streak;
+    });
+
+    fillBoardTable(
+      els.boardTodayBody,
+      todaySorted,
+      ["name", "today", "streak", "allTimeScore"]
+    );
+    fillBoardTable(
+      els.boardAlltimeBody,
+      allSorted,
+      ["name", "allTimeScore", "streak", "today"]
+    );
+  }
+
+  function fillBoardTable(body, rows, columns) {
+    if (!body) {
+      return;
+    }
+    body.innerHTML = "";
+    if (!rows.length) {
+      var empty = document.createElement("tr");
+      var cell = document.createElement("td");
+      cell.colSpan = columns.length;
+      cell.className = "legends-empty";
+      cell.textContent = "No legends yet. The press awaits.";
+      empty.appendChild(cell);
+      body.appendChild(empty);
+      return;
+    }
+    rows.slice(0, 25).forEach(function (row) {
+      var tr = document.createElement("tr");
+      columns.forEach(function (col) {
+        var td = document.createElement("td");
+        if (col === "name") {
+          td.textContent = row.name;
+        } else if (col === "today") {
+          td.textContent = row.today;
+        } else if (col === "streak") {
+          td.textContent = String(row.streak || 0);
+        } else {
+          td.textContent = String(row.allTimeScore || 0);
+        }
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+  }
+
+  async function renderMyRecord() {
+    if (!els.myRecord) {
+      return;
+    }
+    var cloud = window.FARTLE_CLOUD;
+    var user = cloud && cloud.isReady() && cloud.currentUser();
+    if (!user) {
+      els.myRecord.hidden = true;
+      els.myRecord.innerHTML = "";
       return;
     }
 
-    scores.forEach(function (entry) {
-      var item = document.createElement("li");
-      var name = document.createElement("span");
-      name.textContent = entry.name;
-      var detail = document.createElement("span");
-      detail.textContent =
-        entry.guesses === 1
-          ? "guessed in 1 attempt"
-          : "guessed in " + entry.guesses + " attempts";
-      item.appendChild(name);
-      item.appendChild(detail);
-      els.legendsList.appendChild(item);
-    });
+    var profile = null;
+    var history = [];
+    try {
+      profile = await cloud.getProfile(user.uid);
+      history = await cloud.listMyHistory(user.uid);
+    } catch (err) {
+      profile = null;
+    }
+
+    els.myRecord.hidden = false;
+    els.myRecord.innerHTML = "";
+    addText(els.myRecord, "p", "my-record-kicker", "Your card");
+    var stats = document.createElement("p");
+    stats.className = "my-record-stats";
+    if (profile) {
+      stats.textContent =
+        "All time " +
+        (profile.allTimeScore || 0) +
+        " · streak " +
+        (profile.currentStreak || 0) +
+        " (best " +
+        (profile.bestStreak || 0) +
+        ") · " +
+        (profile.gamesWon || 0) +
+        "/" +
+        (profile.gamesPlayed || 0) +
+        " won";
+    } else {
+      stats.textContent = "Signed in. Finish a puzzle to open a ledger.";
+    }
+    els.myRecord.appendChild(stats);
+
+    if (history && history.length) {
+      var list = document.createElement("ol");
+      list.className = "my-history";
+      history.forEach(function (day) {
+        var item = document.createElement("li");
+        var guesses = Array.isArray(day.guessList) ? day.guessList.join(", ") : "";
+        item.textContent =
+          day.date +
+          " · " +
+          (day.objectName || "object") +
+          " · " +
+          (day.won ? day.guesses + " guesses" : "out of gas") +
+          (guesses ? " (" + guesses + ")" : "");
+        list.appendChild(item);
+      });
+      els.myRecord.appendChild(list);
+    }
   }
 
   function playWinSound() {

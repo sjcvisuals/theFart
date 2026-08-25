@@ -134,6 +134,8 @@ input:focus-visible {
 .masthead-tools {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.45rem;
 }
 
@@ -173,6 +175,49 @@ input:focus-visible {
 .mute-button:hover {
   background: var(--ink);
   color: var(--paper);
+}
+
+.auth-button,
+.auth-signout {
+  margin: 0;
+  padding: 0.25rem 0.45rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-signout {
+  background: transparent;
+  color: var(--ink);
+}
+
+.auth-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.auth-photo {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.auth-name {
+  max-width: 7.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
 }
 
 .mute-label {
@@ -865,6 +910,91 @@ input:focus-visible {
   margin: 0.15rem 0 0.7rem;
   font-size: 1.45rem;
   text-transform: uppercase;
+}
+
+.my-record {
+  margin: 0 0 0.75rem;
+  padding: 0.55rem 0.55rem 0.65rem;
+  border: 1px dashed var(--rule-thin);
+}
+
+.my-record-kicker {
+  margin: 0 0 0.25rem;
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.my-record-stats {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.my-history {
+  margin: 0.45rem 0 0;
+  padding: 0 0 0 1.1rem;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+}
+
+.board-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0 0 0.55rem;
+}
+
+.board-tab {
+  margin: 0;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--ink);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.board-tab.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.board-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.board-table th,
+.board-table td {
+  padding: 0.28rem 0.2rem;
+  border-bottom: 1px dotted var(--rule-thin);
+  text-align: left;
+}
+
+.board-table th {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.board-table td:nth-child(n + 2) {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .legends-list {

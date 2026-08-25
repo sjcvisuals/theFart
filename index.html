@@ -28,6 +28,14 @@
               >
                 Reset puzzle
               </button>
+              <button type="button" class="auth-button" id="auth-button" hidden>
+                Sign in with Google
+              </button>
+              <div class="auth-user" id="auth-user" hidden>
+                <img class="auth-photo" id="auth-photo" alt="" width="22" height="22" />
+                <span class="auth-name" id="auth-name"></span>
+                <button type="button" class="auth-signout" id="sign-out-button">Sign out</button>
+              </div>
               <button
                 type="button"
                 class="mute-button"
@@ -184,9 +192,48 @@
 
             <aside class="legends" id="legends" aria-labelledby="legends-heading">
               <p class="section-label">The roll of honour</p>
-              <h2 id="legends-heading">Today's Fart Legends</h2>
-              <ol class="legends-list" id="legends-list"></ol>
-              <p class="legends-note">Scores shown on this device.</p>
+              <h2 id="legends-heading">Fart Legends</h2>
+              <div class="my-record" id="my-record" hidden></div>
+              <div class="board-tabs" role="tablist" aria-label="Leaderboard">
+                <button type="button" class="board-tab is-active" id="tab-today" data-board="today">
+                  Today
+                </button>
+                <button type="button" class="board-tab" id="tab-alltime" data-board="alltime">
+                  All time
+                </button>
+              </div>
+              <div class="board-panel" id="board-today">
+                <table class="board-table">
+                  <caption>Today's edition</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">Today</th>
+                      <th scope="col">Streak</th>
+                      <th scope="col">All time</th>
+                    </tr>
+                  </thead>
+                  <tbody id="board-today-body"></tbody>
+                </table>
+              </div>
+              <div class="board-panel" id="board-alltime" hidden>
+                <table class="board-table">
+                  <caption>All-time press</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">All time</th>
+                      <th scope="col">Streak</th>
+                      <th scope="col">Today</th>
+                    </tr>
+                  </thead>
+                  <tbody id="board-alltime-body"></tbody>
+                </table>
+              </div>
+              <p class="legends-note" id="legends-note">
+                Sign in with Google to post a global score. Device-only scores stay on this machine
+                until then.
+              </p>
             </aside>
           </section>
 
@@ -222,9 +269,14 @@
 
     <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
 
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="js/objects.js"></script>
     <script src="js/news.js"></script>
     <script src="js/ads.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/cloud.js"></script>
     <script src="js/game.js"></script>
   </body>
 </html>
