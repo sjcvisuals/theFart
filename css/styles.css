@@ -203,6 +203,10 @@ input:focus-visible {
   gap: 0.35rem;
 }
 
+.auth-user[hidden] {
+  display: none;
+}
+
 .auth-photo {
   width: 1.2rem;
   height: 1.2rem;
