@@ -34,7 +34,11 @@ Then visit `http://localhost:8080`.
 │   ├── objects.js    # daily objects and fart counts
 │   ├── news.js       # Onion feed + classifieds
 │   ├── ads.js        # side/bottom ad wells (AdSense optional)
+│   ├── firebase-config.js  # paste Firebase keys here
+│   ├── cloud.js      # Google sign-in + global board
 │   └── game.js       # puzzle, guesses, scores, share
+├── firestore.rules
+├── SETUP.md
 ├── assets/
 │   ├── favicon.svg
 │   └── sounds/
@@ -68,7 +72,7 @@ You get **five** guesses. After each miss the paper tells you **higher** or **lo
 
 ## How localStorage works
 
-There is no server. Scores are saved on **this device only**.
+The in-progress puzzle still lives in `localStorage` on this device. After you finish **SETUP.md** part A, signed-in scores go to Firebase so everyone sees the same Fart Legends board (today, streak, all-time). Unsigned play still works; posting to the global board needs Google sign-in.
 
 | Key | Purpose |
 | --- | --- |
@@ -78,15 +82,15 @@ There is no server. Scores are saved on **this device only**.
 | `fartle.v1.photos` | Cached Wikipedia thumbnail URL for today's object |
 | `fartle.v2.onion` | Cached Onion headlines for today's date |
 
-The scoreboard lists today's best scores on this device, sorted by fewest guesses. It is **not** a global multiplayer leaderboard.
-
-`ScoreRepository` in `js/game.js` is a small async wrapper around `localStorage`. A backend such as Supabase can replace that object later without rewriting the rest of the game.
+The scoreboard lists today's best scores and an all-time table. It becomes a **global** board once Firebase keys are in `js/firebase-config.js`.
 
 Parody news is fetched live from [The Onion](https://theonion.com/) RSS feed. A date-based picker chooses about ten headlines for the day so the paper changes with the puzzle, not on every refresh. Most sit in the left and right columns; a couple continue under the puzzle so the game is framed on three sides. Each Onion headline links to the original article. Original Daily Fart “home news” and “in brief” items pad the sides, with two more under the game. If the Onion feed cannot be reached, those local briefs still fill the page and the Onion columns point readers to theonion.com.
 
 There is a small **Reset puzzle** control in the masthead for testing. It clears today’s guesses (and today’s local Fart Legends entries) on this device and reloads the page. Set `SHOW_TEST_RESET` to `false` in `js/game.js` before a public launch if you do not want it.
 
 The game runs with no API key. A public RSS-to-JSON helper is used so the browser can read The Onion feed.
+
+Signed-in Fart Legends (today, streak, all-time) use Google sign-in and Firebase. Banner ads use Google AdSense once approved. Both need a one-time setup in your Google account — follow **[SETUP.md](SETUP.md)** step by step. Until then the board stays on this device and the ad wells show house copy.
 
 ## Deploy on GitHub Pages
 
