@@ -67,7 +67,7 @@ If the browser console says `auth/unauthorized-domain`, you missed a domain in A
 
 ## Part B — Banner ads (Google AdSense)
 
-This is the best fit for the three newspaper wells: it pays per view/click, stays off the puzzle, and can earn a little even with modest traffic. You cannot skip Google's approval.
+This is the best fit for the three newspaper wells: it pays per view/click, stays off the puzzle, and can earn a little even with modest traffic. You cannot skip Google's approval. The paper only needs your **publisher id** (`ca-pub-…`). Slot ids are optional.
 
 ### B1. Apply
 
@@ -77,53 +77,45 @@ This is the best fit for the three newspaper wells: it pays per view/click, stay
 4. Country / payments profile: yours.
 5. Accept the AdSense terms.
 
-### B2. Site verification
+### B2. Paste the publisher id
 
-AdSense will show either a **meta tag** or ask you to add an **ads.txt** line.
+1. In AdSense: **Account** → **Account information**. Copy `ca-pub-` plus the digits.
+2. Open `js/adsense-config.js` and set `client: "ca-pub-…"`.
+3. Add a root file named `ads.txt` containing exactly one line (use `pub-` without `ca-`):
 
-**If they give a meta tag** (`<meta name="google-adsense-account" content="ca-pub-…">`):
+```text
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+```
 
-1. Open `index.html`.
-2. Paste that tag inside `<head>`, under the description meta.
-3. Commit, push, wait a few minutes, then click **Verify** in AdSense.
+4. Commit and push. Confirm `https://www.fartdaily.com/js/adsense-config.js` shows your id, and (if you added it) `https://www.fartdaily.com/ads.txt` shows that line.
+5. In AdSense → **Sites**, add `www.fartdaily.com` if it is not already there, then **Verify**.
 
-**If they give an ads.txt line** (`google.com, pub-XXXX, DIRECT, f08c47fec0942fa0`):
-
-1. Open `ads.txt` in this repo.
-2. Uncomment / replace the sample line with the exact line Google shows.
-3. Commit and push.
-4. Check `https://www.fartdaily.com/ads.txt` in a browser. It must show that line.
-5. Click **Verify** in AdSense.
+Do not ship a comment-only `ads.txt`. An empty ads.txt tells buyers that nobody is allowed to sell ads.
 
 ### B3. Wait for approval
 
-This can take **a few days**. The house ads (“this space to let”) stay up until then. A brand-new fart-joke site can be refused; if that happens, put a Ko-fi URL in `supportUrl` inside `js/ads.js` so the right-hand well still takes tips.
+This can take **a few days**. House ads (“this space to let”) stay visible until a unit fills. A brand-new fart-joke site can be refused; if that happens, put a Ko-fi URL in `supportUrl` inside `js/ads.js` so the right-hand well still takes tips.
 
-### B4. Create three display units
+### B4. Auto ads (keep them off the puzzle)
 
-After approval, in AdSense:
+After the site is Ready:
 
-1. **Ads** → **By ad unit** → **Display ads**.
-2. Create three units, names e.g. `Fart-left`, `Fart-right`, `Fart-bottom`.
-3. Size: **Responsive**.
-4. Copy each **Ad unit ID** (a long number) and your **publisher ID** (`ca-pub-…` from **Account** → **Account information**).
+1. AdSense → **Ads** → your site.
+2. You can leave **Auto ads** on so Google fills the three wells.
+3. Turn **Overlay formats** off (anchor / vignette). Those sit on top of the puzzle.
+4. If an in-page Auto ad lands on the Fartle column, use **Excluded areas** and paint out the puzzle.
 
-### B5. Paste into the paper
+The paper also hides Auto ads that inject inside the Fartle column.
 
-Open `js/ads.js` and set:
+### B5. Optional: three display units
 
-```js
-adsenseClient: "ca-pub-XXXXXXXXXXXXXXXX",
-slots: {
-  left: "1111111111",
-  right: "2222222222",
-  bottom: "3333333333"
-}
-```
+For tighter reporting, **Ads** → **By ad unit** → **Display ads**, create `Fart-left`, `Fart-right`, `Fart-bottom` (Responsive), and paste the unit ids into `slots` in `js/adsense-config.js`.
 
-Use the real ids. Commit and push. Reload `www.fartdaily.com`. The three wells should fill with Google ads after a few minutes.
+### B6. UK / Europe consent
 
-### B6. Payments
+In AdSense → **Privacy & messaging**, turn on Google's European regulations message (CMP) for `fartdaily.com`. Without it, ads in the UK may be limited or blank.
+
+### B7. Payments
 
 In AdSense → **Payments**, add a bank or address. Google pays after you pass the payment threshold (often around $100). Until then, earnings just accumulate.
 

@@ -33,12 +33,15 @@ Then visit `http://localhost:8080`.
 ├── js/
 │   ├── objects.js    # daily objects and fart counts
 │   ├── news.js       # Onion feed + classifieds
+│   ├── adsense-config.js  # paste AdSense ca-pub here
+│   ├── adsense-boot.js    # official snippet in <head>
 │   ├── ads.js        # side/bottom ad wells (AdSense optional)
 │   ├── firebase-config.js  # paste Firebase keys here
 │   ├── cloud.js      # Google sign-in + global board
 │   └── game.js       # puzzle, guesses, scores, share
 ├── firestore.rules
 ├── SETUP.md
+├── robots.txt
 ├── assets/
 │   ├── favicon.svg
 │   └── sounds/
@@ -135,21 +138,17 @@ The domain costs a yearly GoDaddy renewal. Hosting stays free. The game will sit
 
 The left column, right column, and a strip above the classifieds carry labelled **Advertisement** wells. They never sit on top of the puzzle.
 
-Until you plug in a network, those wells show house ads (“this space to let”). That is enough to sell a square directly. Tiny automated revenue usually means [Google AdSense](https://www.google.com/adsense/) once the site has a custom domain and a privacy page (`privacy.html` is included).
+Until Google approves the site, those wells show house ads (“this space to let”). That is enough to sell a square directly. Tiny automated revenue usually means [Google AdSense](https://www.google.com/adsense/) once the site has a custom domain and a privacy page (`privacy.html` is included).
 
 1. Apply at AdSense with `https://www.fartdaily.com`.
-2. When you have a publisher id (`ca-pub-…`) and three display units, paste them into `js/ads.js`:
+2. Paste your publisher id into `js/adsense-config.js`:
 
 ```js
-adsenseClient: "ca-pub-XXXXXXXXXXXXXXXX",
-slots: {
-  left: "1234567890",
-  right: "1234567890",
-  bottom: "1234567890"
-}
+client: "ca-pub-XXXXXXXXXXXXXXXX"
 ```
 
-3. Put a matching line in `ads.txt` at the site root:
+3. After approval, Auto ads can fill the wells. Optional display-unit ids go in `slots`. Do not add overlay (anchor/vignette) formats — they cover the puzzle.
+4. If AdSense gives you an ads.txt line, put it in `ads.txt` at the site root (one real record, not comments):
 
 ```text
 google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
