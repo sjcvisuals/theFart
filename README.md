@@ -33,11 +33,13 @@ Then visit `http://localhost:8080`.
 ├── js/
 │   ├── objects.js    # daily objects and fart counts
 │   ├── news.js       # Onion feed + classifieds
+│   ├── ads.js        # side/bottom ad wells (AdSense optional)
 │   └── game.js       # puzzle, guesses, scores, share
 ├── assets/
 │   ├── favicon.svg
 │   └── sounds/
 │       └── fart.mp3
+├── privacy.html
 ├── README.md
 ├── CNAME
 └── .nojekyll
@@ -124,3 +126,31 @@ To make the bare name `fartdaily.com` also work, in GoDaddy → **DNS** → **DN
 Leave the existing `www` CNAME (`www` → `sjcvisuals.github.io`) as it is.
 
 The domain costs a yearly GoDaddy renewal. Hosting stays free. The game will sit at `https://www.fartdaily.com/` with no `/theFart/` suffix.
+
+## Advertising
+
+The left column, right column, and a strip above the classifieds carry labelled **Advertisement** wells. They never sit on top of the puzzle.
+
+Until you plug in a network, those wells show house ads (“this space to let”). That is enough to sell a square directly. Tiny automated revenue usually means [Google AdSense](https://www.google.com/adsense/) once the site has a custom domain and a privacy page (`privacy.html` is included).
+
+1. Apply at AdSense with `https://www.fartdaily.com`.
+2. When you have a publisher id (`ca-pub-…`) and three display units, paste them into `js/ads.js`:
+
+```js
+adsenseClient: "ca-pub-XXXXXXXXXXXXXXXX",
+slots: {
+  left: "1234567890",
+  right: "1234567890",
+  bottom: "1234567890"
+}
+```
+
+3. Put a matching line in `ads.txt` at the site root:
+
+```text
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+```
+
+GitHub Pages is meant for project sites, not a shop. Donation / pint links are explicitly allowed. A couple of quiet display units on a hobby game is common; if the paper ever becomes a real business, move it off Pages.
+
+A Ko-fi (or similar) URL in `supportUrl` turns the right-hand well into a tip jar without AdSense. `advertiseUrl` (a `mailto:` or a form) turns the other wells into a direct “buy this square” button.
