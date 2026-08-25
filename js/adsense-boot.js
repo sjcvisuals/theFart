@@ -16,7 +16,7 @@
     document.head.appendChild(meta);
   }
 
-  if (document.querySelector("script[data-fartle-adsense]")) {
+  if (document.querySelector('script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]')) {
     return;
   }
 
@@ -26,7 +26,6 @@
   script.src =
     "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" +
     encodeURIComponent(client);
-  script.setAttribute("data-fartle-adsense", "true");
   document.head.appendChild(script);
 
   function adsenseClient() {
