@@ -81,7 +81,7 @@ This Google login already has YouTube AdSense. Do not make a second account. Upg
 2. Click **Get started**.
 3. Sign in with the **same** Google account you use for YouTube AdSense.
 4. Click **Continue**.
-5. URL box: `https://www.fartdaily.com`. Do not tick **I don't have a site yet**.
+5. URL box: `fartdaily.com` (or accept Google’s suggestion `http://fartdaily.com`). Do not enter `www`. Do not tick **I don't have a site yet**.
 6. Click **Start using AdSense**.
 7. Finish any leftover tasks on Home (payments, connect site). After that, **Sites** appears in the left menu.
 
@@ -91,14 +91,14 @@ Google’s notes: [Upgrade AdSense for YouTube to show ads on your own site](htt
 
 1. Open [https://adsense.google.com/adsense/signup](https://adsense.google.com/adsense/signup) while logged into the Google account you want as owner.
 2. Click **Get started** (or **Sign up**).
-3. On the first form there is a URL box. Type `https://www.fartdaily.com`. Do not tick **I don't have a site yet**.
+3. On the first form there is a URL box. Type `fartdaily.com`. Do not enter `www`. Do not tick **I don't have a site yet**.
 4. Pick your country, accept the terms, click **Start using AdSense**.
 
 **If the left menu already has Sites**
 
 1. Open [https://www.google.com/adsense](https://www.google.com/adsense).
 2. On the Home card click **Add site**, or in the left menu click **Sites** → **+ New site**.
-3. URL: `https://www.fartdaily.com` → **Save**.
+3. URL: `fartdaily.com` (not `www`) → **Save**.
 4. Copy the publisher id (`ca-pub-…`) from that screen, or from **Account** → **Account information**.
 
 ### B2. Paste the publisher id
@@ -112,7 +112,7 @@ google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
 ```
 
 4. Commit and push. Confirm `https://www.fartdaily.com/js/adsense-config.js` shows your id, and (if you added it) `https://www.fartdaily.com/ads.txt` shows that line.
-5. In AdSense → **Sites**, add `www.fartdaily.com` if it is not already there, then **Verify**.
+5. In AdSense → **Sites**, add `fartdaily.com` if it is not already there, then **Verify**. Ads on `www.fartdaily.com` are covered by that root domain.
 
 Do not ship a comment-only `ads.txt`. An empty ads.txt tells buyers that nobody is allowed to sell ads.
 
