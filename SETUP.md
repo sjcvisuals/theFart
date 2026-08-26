@@ -69,13 +69,25 @@ If the browser console says `auth/unauthorized-domain`, you missed a domain in A
 
 This is the best fit for the three newspaper wells: it pays per view/click, stays off the puzzle, and can earn a little even with modest traffic. You cannot skip Google's approval. The paper only needs your **publisher id** (`ca-pub-…`). Slot ids are optional.
 
-### B1. Apply
+### B1. Create the AdSense account (or add the site)
 
-1. Open [https://www.google.com/adsense](https://www.google.com/adsense) with the same Google account (or a payments account you control).
-2. **Get started**.
-3. Website: `https://www.fartdaily.com`
-4. Country / payments profile: yours.
-5. Accept the AdSense terms.
+There is no button labelled “apply with a website”. AdSense is also not **Google Ads** (`ads.google.com` is for *buying* ads). Use AdSense only.
+
+**If you do not have an AdSense account yet**
+
+1. Open [https://adsense.google.com/adsense/signup](https://adsense.google.com/adsense/signup) while logged into the Google account you want as owner.
+2. Click **Get started** (or **Sign up**).
+3. On the first form there is a URL box. Type `https://www.fartdaily.com`. Do not tick **I don't have a site yet**.
+4. Pick your country, accept the terms, click **Start using AdSense**.
+
+**If you are already inside the AdSense dashboard**
+
+1. Open [https://www.google.com/adsense](https://www.google.com/adsense).
+2. On the Home card click **Add site**, or in the left menu click **Sites** → **+ New site**.
+3. URL: `https://www.fartdaily.com` → **Save**.
+4. Google will offer a verification method (code snippet, ads.txt, or a meta tag). Copy the publisher id (`ca-pub-…`) from that screen, or from **Account** → **Account information**.
+
+If the left menu has no **Sites** page, this Google account is probably **AdSense for YouTube** only. Use [Google’s upgrade steps](https://support.google.com/adsense/answer/9247020) so the same payee can show ads on a website. Do not create a second AdSense account.
 
 ### B2. Paste the publisher id
 
