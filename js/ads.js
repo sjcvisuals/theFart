@@ -1,22 +1,14 @@
 /**
  * Display advertising for The Daily Fart.
  *
- * Leave adsenseClient empty until Google AdSense has approved the site.
- * House ads still occupy the wells so the paper looks like a paper.
- * Exact AdSense clicks: SETUP.md part B.
- * GitHub Pages allows donation links; paste a Ko-fi URL into supportUrl
- * if AdSense is refused.
+ * Publisher id lives in js/adsense-config.js. Until Google approves the
+ * site, the wells keep house ads underneath and hide them when a unit fills.
+ * Ads never sit on the puzzle.
  */
 (function () {
   "use strict";
 
-  window.FARTLE_ADS = {
-    adsenseClient: "",
-    slots: {
-      left: "",
-      right: "",
-      bottom: ""
-    },
+  window.FARTLE_ADS = window.FARTLE_ADS || {
     supportUrl: "",
     advertiseUrl: ""
   };
@@ -41,27 +33,41 @@
 
   document.addEventListener("DOMContentLoaded", paintAds);
 
+  function adsenseClient() {
+    var a = window.FARTLE_ADSENSE || {};
+    var b = window.FARTLE_ADS || {};
+    var raw = String(a.client || b.adsenseClient || "").trim();
+    return /^ca-pub-\d+$/.test(raw) ? raw : "";
+  }
+
+  function adsenseSlot(placement) {
+    var a = window.FARTLE_ADSENSE || {};
+    var b = window.FARTLE_ADS || {};
+    var slots = a.slots || b.slots || {};
+    var slot = String(slots[placement] || "").trim();
+    return /^\d+$/.test(slot) ? slot : "";
+  }
+
   function paintAds() {
     var cfg = window.FARTLE_ADS || {};
+    var client = adsenseClient();
     var placements = ["left", "right", "bottom"];
-    var useAdsense = Boolean(cfg.adsenseClient && /^ca-pub-\d+$/.test(cfg.adsenseClient));
-
-    if (useAdsense) {
-      loadAdsense(cfg.adsenseClient);
-    }
-
     var adsenseCount = 0;
+
     placements.forEach(function (placement) {
       var root = document.getElementById("ad-" + placement);
       if (!root) {
         return;
       }
       root.innerHTML = "";
-      var slot = cfg.slots && cfg.slots[placement];
-      if (useAdsense && slot) {
-        root.appendChild(buildAdsenseUnit(cfg.adsenseClient, slot, placement));
+      if (client) {
+        root.appendChild(buildAdsenseUnit(client, adsenseSlot(placement), placement));
         adsenseCount += 1;
-        return;
+        root.classList.add("is-live");
+        var well = root.closest(".ad-well");
+        if (well) {
+          well.classList.add("is-live");
+        }
       }
       root.appendChild(buildHouseAd(placement, cfg));
     });
@@ -80,26 +86,15 @@
     }
   }
 
-  function loadAdsense(client) {
-    if (document.querySelector("script[data-fartle-adsense]")) {
-      return;
-    }
-    var script = document.createElement("script");
-    script.async = true;
-    script.crossOrigin = "anonymous";
-    script.src =
-      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" +
-      encodeURIComponent(client);
-    script.setAttribute("data-fartle-adsense", "true");
-    document.head.appendChild(script);
-  }
-
   function buildAdsenseUnit(client, slot, placement) {
     var ins = document.createElement("ins");
     ins.className = "adsbygoogle";
     ins.setAttribute("data-ad-client", client);
-    ins.setAttribute("data-ad-slot", slot);
     ins.setAttribute("data-full-width-responsive", "true");
+    ins.style.display = "block";
+    if (slot) {
+      ins.setAttribute("data-ad-slot", slot);
+    }
     if (placement === "bottom") {
       ins.setAttribute("data-ad-format", "horizontal");
     } else {
