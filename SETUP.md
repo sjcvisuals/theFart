@@ -69,13 +69,37 @@ If the browser console says `auth/unauthorized-domain`, you missed a domain in A
 
 This is the best fit for the three newspaper wells: it pays per view/click, stays off the puzzle, and can earn a little even with modest traffic. You cannot skip Google's approval. The paper only needs your **publisher id** (`ca-pub-…`). Slot ids are optional.
 
-### B1. Apply
+### B1. Create the AdSense account (or add the site)
 
-1. Open [https://www.google.com/adsense](https://www.google.com/adsense) with the same Google account (or a payments account you control).
-2. **Get started**.
-3. Website: `https://www.fartdaily.com`
-4. Country / payments profile: yours.
-5. Accept the AdSense terms.
+There is no button labelled “apply with a website”. AdSense is also not **Google Ads** (`ads.google.com` is for *buying* ads). Use AdSense only.
+
+**If the left menu says AdSense for YouTube and has no Sites page**
+
+This Google login already has YouTube AdSense. Do not make a second account. Upgrade the same one so it can also show ads on a website:
+
+1. Open [https://adsense.google.com/start/](https://adsense.google.com/start/)
+2. Click **Get started**.
+3. Sign in with the **same** Google account you use for YouTube AdSense.
+4. Click **Continue**.
+5. URL box: `fartdaily.com` (or accept Google’s suggestion `http://fartdaily.com`). Do not enter `www`. Do not tick **I don't have a site yet**.
+6. Click **Start using AdSense**.
+7. Finish any leftover tasks on Home (payments, connect site). After that, **Sites** appears in the left menu.
+
+Google’s notes: [Upgrade AdSense for YouTube to show ads on your own site](https://support.google.com/adsense/answer/9247020).
+
+**If you do not have an AdSense account yet**
+
+1. Open [https://adsense.google.com/adsense/signup](https://adsense.google.com/adsense/signup) while logged into the Google account you want as owner.
+2. Click **Get started** (or **Sign up**).
+3. On the first form there is a URL box. Type `fartdaily.com`. Do not enter `www`. Do not tick **I don't have a site yet**.
+4. Pick your country, accept the terms, click **Start using AdSense**.
+
+**If the left menu already has Sites**
+
+1. Open [https://www.google.com/adsense](https://www.google.com/adsense).
+2. On the Home card click **Add site**, or in the left menu click **Sites** → **+ New site**.
+3. URL: `fartdaily.com` (not `www`) → **Save**.
+4. Copy the publisher id (`ca-pub-…`) from that screen, or from **Account** → **Account information**.
 
 ### B2. Paste the publisher id
 
@@ -88,7 +112,7 @@ google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
 ```
 
 4. Commit and push. Confirm `https://www.fartdaily.com/js/adsense-config.js` shows your id, and (if you added it) `https://www.fartdaily.com/ads.txt` shows that line.
-5. In AdSense → **Sites**, add `www.fartdaily.com` if it is not already there, then **Verify**.
+5. In AdSense → **Sites**, add `fartdaily.com` if it is not already there, then **Verify**. Ads on `www.fartdaily.com` are covered by that root domain.
 
 Do not ship a comment-only `ads.txt`. An empty ads.txt tells buyers that nobody is allowed to sell ads.
 
