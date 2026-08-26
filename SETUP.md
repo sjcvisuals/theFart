@@ -73,6 +73,20 @@ This is the best fit for the three newspaper wells: it pays per view/click, stay
 
 There is no button labelled “apply with a website”. AdSense is also not **Google Ads** (`ads.google.com` is for *buying* ads). Use AdSense only.
 
+**If the left menu says AdSense for YouTube and has no Sites page**
+
+This Google login already has YouTube AdSense. Do not make a second account. Upgrade the same one so it can also show ads on a website:
+
+1. Open [https://adsense.google.com/start/](https://adsense.google.com/start/)
+2. Click **Get started**.
+3. Sign in with the **same** Google account you use for YouTube AdSense.
+4. Click **Continue**.
+5. URL box: `https://www.fartdaily.com`. Do not tick **I don't have a site yet**.
+6. Click **Start using AdSense**.
+7. Finish any leftover tasks on Home (payments, connect site). After that, **Sites** appears in the left menu.
+
+Google’s notes: [Upgrade AdSense for YouTube to show ads on your own site](https://support.google.com/adsense/answer/9247020).
+
 **If you do not have an AdSense account yet**
 
 1. Open [https://adsense.google.com/adsense/signup](https://adsense.google.com/adsense/signup) while logged into the Google account you want as owner.
@@ -80,14 +94,12 @@ There is no button labelled “apply with a website”. AdSense is also not **Go
 3. On the first form there is a URL box. Type `https://www.fartdaily.com`. Do not tick **I don't have a site yet**.
 4. Pick your country, accept the terms, click **Start using AdSense**.
 
-**If you are already inside the AdSense dashboard**
+**If the left menu already has Sites**
 
 1. Open [https://www.google.com/adsense](https://www.google.com/adsense).
 2. On the Home card click **Add site**, or in the left menu click **Sites** → **+ New site**.
 3. URL: `https://www.fartdaily.com` → **Save**.
-4. Google will offer a verification method (code snippet, ads.txt, or a meta tag). Copy the publisher id (`ca-pub-…`) from that screen, or from **Account** → **Account information**.
-
-If the left menu has no **Sites** page, this Google account is probably **AdSense for YouTube** only. Use [Google’s upgrade steps](https://support.google.com/adsense/answer/9247020) so the same payee can show ads on a website. Do not create a second AdSense account.
+4. Copy the publisher id (`ca-pub-…`) from that screen, or from **Account** → **Account information**.
 
 ### B2. Paste the publisher id
 
