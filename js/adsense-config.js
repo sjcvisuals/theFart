@@ -9,7 +9,7 @@
  * Fart-left / Fart-right / Fart-bottom, paste those unit ids here.
  */
 window.FARTLE_ADSENSE = {
-  client: "",
+  client: "ca-pub-4036333785784144",
   slots: {
     left: "",
     right: "",
